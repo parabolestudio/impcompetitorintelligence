@@ -1,4 +1,5 @@
 import { html, useEffect, useState } from "./preact-htm.js";
+import Diamond from "./Diamond.js";
 // import { REPO_BASE_URL } from "./helpers.js";
 
 export function Vis1() {
@@ -41,8 +42,14 @@ export function Vis1() {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  return html`<div>
-    <svg viewBox="0 0 ${width} ${height}">
+  const config = window.customChartsConfig || {};
+
+  return html`<div class="vis-container">
+    <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
+    <p class="vis-subtitle">
+      ${config?.vis1?.subtitle || "Subtitle for Vis 1"}
+    </p>
+    <svg viewBox="0 0 ${width} ${height}" style="background: #ccc;">
       <g transform="translate(${margin.left}, ${margin.top})">
         <rect
           width="${innerWidth}"
@@ -50,7 +57,11 @@ export function Vis1() {
           fill="#f2f2f2"
           stroke="none"
         />
+        <${Diamond} number=${3} position=${{ x: 300, y: 100 }} />
+        <${Diamond} number=${8} position=${{ x: 500, y: 200 }} />
+        <${Diamond} number=${15} position=${{ x: 800, y: 300 }} />
       </g>
     </svg>
+    <p class="vis-source">${config?.vis1?.source || "Source for Vis 1"}</p>
   </div>`;
 }

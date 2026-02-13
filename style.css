@@ -1,0 +1,41 @@
+:root {
+  --color-vis-neutral-grey1: #738287;
+  --color-vis-neutral-grey2: #a1aeb3;
+  --color-vis-neutral-imp-black-text: #0d121c;
+  --color-vis-main-dark-blue: #00212e;
+  --color-vis-secondary-green: #6ec259;
+  --color-vis-secondary-orange: #db8b4c;
+  --color-vis-secondary-pink: #c94fb3;
+  --color-vis-secondary-purple: #8168e3;
+  --color-vis-secondary-teal: #40b3c2;
+}
+
+.vis-container {
+  font-family: Inter, sans-serif;
+
+  .vis-title {
+    font-size: 16.8px;
+    font-weight: 700;
+  }
+  .vis-subtitle {
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .vis-source {
+    font-size: 10.8px;
+    font-weight: 400;
+  }
+
+  .diamond {
+    .diamond-rect {
+      stroke-width: 2px;
+      stroke: #fff;
+    }
+    .diamond-text {
+      fill: white;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: "Archivo Narrow", Inter, sans-serif;
+    }
+  }
+}

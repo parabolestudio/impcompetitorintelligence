@@ -86,9 +86,33 @@ export function Vis1() {
       height1 + height2 + marginSection3.top,
       height1 + height2 + height3 - marginSection3.bottom,
     ]);
-  const sortedNewCompanyData = [...newCompanyData].sort(
-    (a, b) => a.totalMoves - b.totalMoves,
+  // Pyramid style: highest totalMoves in center, decreasing outward
+  // Pyramid ordering for new companies (x-direction):
+  // Sorts new companies by totalMoves descending
+  // Places the company with the most moves at the center index
+  // Alternates placing the next-highest companies to the right and left of center
+  // Result: a pyramid/funnel shape where companies with the most connections sit in the middle-bottom and companies with fewer connections fan out to the sides
+  const sortedByMovesDesc = [...newCompanyData].sort(
+    (a, b) => b.totalMoves - a.totalMoves,
   );
+  const nNew = sortedByMovesDesc.length;
+  const sortedNewCompanyData = new Array(nNew);
+  const mid = Math.floor(nNew / 2);
+  sortedNewCompanyData[mid] = sortedByMovesDesc[0];
+  let pLeft = mid - 1;
+  let pRight = mid + 1;
+  for (let i = 1; i < nNew; i++) {
+    if (i % 2 === 1 && pRight < nNew) {
+      sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
+      pRight++;
+    } else if (pLeft >= 0) {
+      sortedNewCompanyData[pLeft] = sortedByMovesDesc[i];
+      pLeft--;
+    } else {
+      sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
+      pRight++;
+    }
+  }
 
   const newCompanyScaleX = d3
     .scalePoint()
@@ -100,8 +124,29 @@ export function Vis1() {
     new Set(movesData.map((d) => d.formerFirm)),
   );
 
-  // sort unique former firms by name
-  uniqueFormerFirms.sort((a, b) => a.localeCompare(b));
+  // sort former firms by weighted average x-position of their connected new firms
+  // so that former firms leading to the same new firm cluster together
+  // Proximity-based ordering for former companies:
+  // For each former company, computes a weighted average x-position based on where its connected new companies are placed (weighted by number of moves)
+  // Sorts former companies by this weighted average
+  // Result: former companies that feed into the same new company are grouped together along the x-axis, which significantly reduces line crossings
+  uniqueFormerFirms.sort((a, b) => {
+    const aConns = movesData.filter((d) => d.formerFirm === a);
+    const bConns = movesData.filter((d) => d.formerFirm === b);
+    const aTotalMoves = aConns.reduce((s, d) => s + d.numberMoves, 0);
+    const bTotalMoves = bConns.reduce((s, d) => s + d.numberMoves, 0);
+    const aWeightedX =
+      aConns.reduce(
+        (s, d) => s + newCompanyScaleX(d.newFirm) * d.numberMoves,
+        0,
+      ) / aTotalMoves;
+    const bWeightedX =
+      bConns.reduce(
+        (s, d) => s + newCompanyScaleX(d.newFirm) * d.numberMoves,
+        0,
+      ) / bTotalMoves;
+    return aWeightedX - bWeightedX;
+  });
 
   const marginSection1 = {
     left: 90,

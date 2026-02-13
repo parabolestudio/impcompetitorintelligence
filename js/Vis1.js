@@ -1,5 +1,6 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamond } from "./Company.js";
+import { numberMovesScale, colorMapping } from "./helpers.js";
 // import { REPO_BASE_URL } from "./helpers.js";
 
 export function Vis1() {
@@ -63,11 +64,6 @@ export function Vis1() {
     bottom: 0,
     left: 0,
   };
-  console.log("Vis 1 dimensions: ", {
-    width,
-    height,
-    margin,
-  });
 
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -83,7 +79,7 @@ export function Vis1() {
     bottom: 110,
     right: 50,
   };
-  const scaleCompanyY = d3
+  const newCompanyScaleY = d3
     .scalePoint()
     .domain(uniqueCompanyMoves)
     .range([
@@ -103,16 +99,6 @@ export function Vis1() {
   const uniqueFormerFirms = Array.from(
     new Set(movesData.map((d) => d.formerFirm)),
   );
-  // sort unique former firms by total number of moves from that firm
-  // uniqueFormerFirms.sort((a, b) => {
-  //   const totalMovesA = movesData
-  //     .filter((d) => d.formerFirm === a)
-  //     .reduce((sum, d) => sum + d.numberMoves, 0);
-  //   const totalMovesB = movesData
-  //     .filter((d) => d.formerFirm === b)
-  //     .reduce((sum, d) => sum + d.numberMoves, 0);
-  //   return totalMovesB - totalMovesA;
-  // });
 
   // sort unique former firms by name
   uniqueFormerFirms.sort((a, b) => a.localeCompare(b));
@@ -125,7 +111,28 @@ export function Vis1() {
     .scalePoint()
     .domain(uniqueFormerFirms)
     .range([marginSection1.left, innerWidth - marginSection1.right]);
-  console.log("Unique former firms: ", uniqueFormerFirms);
+
+  const linesData = movesData.map((d) => {
+    // find new company data for this move's new firm
+    const newCompany = newCompanyData.find((c) => c.name === d.newFirm);
+    return {
+      formerFirm: d.formerFirm,
+      newFirm: d.newFirm,
+      numberMoves: d.numberMoves,
+      start: {
+        x: formerFirmScaleX(d.formerFirm),
+        y: height1 + 4,
+      },
+      end: {
+        x: newCompanyScaleX(d.newFirm),
+        y:
+          newCompanyScaleY(newCompany.totalMoves) -
+          numberMovesScale(newCompany.totalMoves) / 2 -
+          4,
+      },
+      color: `var(--color-vis-${colorMapping[newCompany.totalMoves]})`,
+    };
+  });
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
@@ -172,11 +179,23 @@ export function Vis1() {
         })}
         ${sortedNewCompanyData.map((d) => {
           const x = newCompanyScaleX(d.name);
-          const y = scaleCompanyY(d.totalMoves);
+          const y = newCompanyScaleY(d.totalMoves);
           return html`
             <g transform="translate(${x}, ${y})">
               <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
             </g>
+          `;
+        })}
+        ${linesData.map((d) => {
+          return html`
+            <line
+              x1="${d.start.x}"
+              y1="${d.start.y}"
+              x2="${d.end.x}"
+              y2="${d.end.y}"
+              stroke="${d.color}"
+              stroke-width="2"
+            />
           `;
         })}
       </g>

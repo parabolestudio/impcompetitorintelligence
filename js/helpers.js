@@ -33,7 +33,7 @@ export const colorMapping = {
 };
 
 export function numberMovesScale(number) {
-  const scaleSize = d3.scaleLinear().domain([3, 15]).range([17, 38]);
+  const scaleSize = d3.scaleLinear().domain([3, 16]).range([17, 38]);
   const size = scaleSize(number);
   return size;
 }

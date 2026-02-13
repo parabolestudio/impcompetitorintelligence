@@ -1,5 +1,6 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import Diamond from "./Diamond.js";
+import { Company, CompanyWithDiamond } from "./Company.js";
 // import { REPO_BASE_URL } from "./helpers.js";
 
 export function Vis1() {
@@ -57,9 +58,18 @@ export function Vis1() {
           fill="#f2f2f2"
           stroke="none"
         />
-        <${Diamond} number=${3} position=${{ x: 300, y: 100 }} />
-        <${Diamond} number=${8} position=${{ x: 500, y: 200 }} />
-        <${Diamond} number=${15} position=${{ x: 800, y: 300 }} />
+        <g transform="translate(100, 100)">
+          <${Diamond} number=${8} />
+          <${Company} name="Ares Management Corporation" />
+          <circle cx="0" cy="0" r="5" fill="lightblue" />
+        </g>
+        <g transform="translate(300, 100)">
+          <${CompanyWithDiamond}
+            name="Ares Management Corporation"
+            number=${8}
+          />
+          <circle cx="0" cy="0" r="5" fill="red" />
+        </g>
       </g>
     </svg>
     <p class="vis-source">${config?.vis1?.source || "Source for Vis 1"}</p>

@@ -1,12 +1,12 @@
 import { html } from "./preact-htm.js";
 import { colorMapping } from "./helpers.js";
 
-export default function Diamond({ number, position = { x: 50, y: 50 } }) {
-  console.log("Rendering Diamond with props:", { number, position });
+export default function Diamond({ number }) {
+  console.log("Rendering Diamond with props:", { number });
   const scaleSize = d3.scaleLinear().domain([3, 15]).range([17, 38]);
   const size = scaleSize(number);
 
-  return html`<g class="diamond" transform="translate(${position.x}, ${position.y})">
+  return html`<g class="diamond">
     <rect 
         width="${size}"
         height="${size}"

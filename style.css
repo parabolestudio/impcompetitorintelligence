@@ -38,4 +38,16 @@
       font-family: "Archivo Narrow", Inter, sans-serif;
     }
   }
+
+  .company {
+    .company-name {
+      color: var(--color-vis-neutral-imp-black-text, #0d121c);
+      text-align: center;
+      font-family: "Archivo Narrow";
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+  }
 }

@@ -74,6 +74,11 @@ export function Vis1() {
 
   const config = window.customChartsConfig || {};
 
+  const scaleCompanyY = d3
+    .scaleLinear()
+    .domain([3, 16])
+    .range([height1 + height2, height1 + height2 + height3 - 100]);
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
     <p class="vis-subtitle">

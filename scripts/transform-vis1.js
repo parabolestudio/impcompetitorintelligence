@@ -9,6 +9,9 @@ const outputPath = path.join(
   "data_vis1_transformed.csv",
 );
 
+// Minimum total moves a "New firm" must have to be included in the output
+const MIN_MOVES_PER_NEW_FIRM = 3;
+
 const raw = fs.readFileSync(inputPath, "utf-8");
 const lines = raw.trim().split("\n");
 
@@ -75,6 +78,16 @@ for (let i = 1; i < lines.length; i++) {
   if (seniority) group.seniorities.add(seniority);
 }
 
+// Count total moves per "New firm" across all pairs
+const movesPerNewFirm = new Map();
+for (const [key, group] of groups) {
+  const newFirm = key.split("|||")[1];
+  movesPerNewFirm.set(
+    newFirm,
+    (movesPerNewFirm.get(newFirm) || 0) + group.count,
+  );
+}
+
 // Helper: format a Set as a quoted array string for CSV, e.g. "[A; B; C]"
 function formatArray(set) {
   const arr = [...set];
@@ -82,13 +95,17 @@ function formatArray(set) {
   return `"${arr.join("; ")}"`; // always quote because content may contain commas
 }
 
-// Build output CSV
+// Build output CSV — only include rows where the new firm has >= MIN_MOVES_PER_NEW_FIRM total moves
 const outputLines = [
   "Former firm,New firm,Number of Moves,New job titles,Teams (IMP defined),Seniorities (IMP defined)",
 ];
 
+let includedCount = 0;
 for (const [key, group] of groups) {
   const [former, newFirm] = key.split("|||");
+
+  if ((movesPerNewFirm.get(newFirm) || 0) < MIN_MOVES_PER_NEW_FIRM) continue;
+
   // Quote fields that contain commas
   const fmtFormer = former.includes(",") ? `"${former}"` : former;
   const fmtNew = newFirm.includes(",") ? `"${newFirm}"` : newFirm;
@@ -98,8 +115,11 @@ for (const [key, group] of groups) {
   outputLines.push(
     `${fmtFormer},${fmtNew},${group.count},${fmtTitles},${fmtTeams},${fmtSeniorities}`,
   );
+  includedCount++;
 }
 
 fs.writeFileSync(outputPath, outputLines.join("\n"), "utf-8");
 console.log(`Transformed CSV written to ${outputPath}`);
-console.log(`Total unique combinations: ${groups.size}`);
+console.log(
+  `Total unique combinations: ${includedCount} (filtered from ${groups.size}, min ${MIN_MOVES_PER_NEW_FIRM} moves per new firm)`,
+);

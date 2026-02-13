@@ -30,7 +30,7 @@ renderVis({
   component: Vis1,
 });
 
-renderVis({
-  id: "vis-2",
-  component: Vis2,
-});
+// renderVis({
+//   id: "vis-2",
+//   component: Vis2,
+// });

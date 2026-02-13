@@ -27,3 +27,9 @@ export const colorMapping = {
   14: "secondary-pink",
   15: "main-dark-blue",
 };
+
+export function numberMovesScale(number) {
+  const scaleSize = d3.scaleLinear().domain([3, 15]).range([17, 38]);
+  const size = scaleSize(number);
+  return size;
+}

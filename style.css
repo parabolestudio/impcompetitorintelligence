@@ -48,6 +48,14 @@
       font-style: normal;
       font-weight: 700;
       line-height: normal;
+      margin: 0;
+    }
+    .company-logo {
+      height: 10px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      margin: 4px auto 0;
     }
   }
 }

@@ -50,7 +50,11 @@ export function Vis1() {
     <p class="vis-subtitle">
       ${config?.vis1?.subtitle || "Subtitle for Vis 1"}
     </p>
-    <svg viewBox="0 0 ${width} ${height}" style="background: #ccc;">
+    <svg
+      viewBox="0 0 ${width} ${height}"
+      style="background: #ccc;"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g transform="translate(${margin.left}, ${margin.top})">
         <rect
           width="${innerWidth}"
@@ -59,8 +63,7 @@ export function Vis1() {
           stroke="none"
         />
         <g transform="translate(100, 100)">
-          <${Diamond} number=${8} />
-          <${Company} name="Ares Management Corporation" />
+          <${CompanyWithDiamond} name="IFM Investors" number=${14} />
           <circle cx="0" cy="0" r="5" fill="lightblue" />
         </g>
         <g transform="translate(300, 100)">

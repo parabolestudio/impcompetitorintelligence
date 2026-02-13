@@ -1,10 +1,9 @@
 import { html } from "./preact-htm.js";
-import { colorMapping } from "./helpers.js";
+import { colorMapping, numberMovesScale } from "./helpers.js";
 
 export default function Diamond({ number }) {
   console.log("Rendering Diamond with props:", { number });
-  const scaleSize = d3.scaleLinear().domain([3, 15]).range([17, 38]);
-  const size = scaleSize(number);
+  const size = numberMovesScale(number);
 
   return html`<g class="diamond">
     <rect 

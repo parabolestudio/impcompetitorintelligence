@@ -53,9 +53,9 @@ export function Vis1() {
   const visContainer = document.querySelector("#vis-1");
   const width =
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
-  const height1 = 150; // upper section with former company names
-  const height2 = 200; // middle section with lines connecting to current company names
-  const height3 = 1000; // lower section with current company names and logos
+  const height1 = 160; // upper section with former company names
+  const height2 = 210; // middle section with lines connecting to current company names
+  const height3 = 634; // lower section with current company names and logos
   const height = height1 + height2 + height3;
   const margin = {
     top: 0,
@@ -74,10 +74,24 @@ export function Vis1() {
 
   const config = window.customChartsConfig || {};
 
+  const uniqueCompanyMoves = Array.from(
+    new Set(newCompanyData.map((d) => d.totalMoves)),
+  ).sort((a, b) => a - b);
+  const marginHeight3 = {
+    top: 100,
+    bottom: 110,
+  };
   const scaleCompanyY = d3
-    .scaleLinear()
-    .domain([3, 16])
-    .range([height1 + height2, height1 + height2 + height3 - 100]);
+    .scalePoint()
+    .domain(uniqueCompanyMoves)
+    .range([
+      height1 + height2 + marginHeight3.top,
+      height1 + height2 + height3 - marginHeight3.bottom,
+    ]);
+
+  const sortedNewCompanyData = [...newCompanyData].sort(
+    (a, b) => a.totalMoves - b.totalMoves,
+  );
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
@@ -114,10 +128,9 @@ export function Vis1() {
           />
           <text class="axis-text" y="${height1 + height2 - 5}">New firms</text>
         </g>
-        ${newCompanyData.map((d, i) => {
+        ${sortedNewCompanyData.map((d, i) => {
           const x = (i + 1) * (innerWidth / (newCompanyData.length + 1));
-          // add random jitter to y position to avoid overlap
-          const y = height1 + height2 + 50 + Math.random() * 200;
+          const y = scaleCompanyY(d.totalMoves);
           return html`
             <g transform="translate(${x}, ${y})">
               <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />

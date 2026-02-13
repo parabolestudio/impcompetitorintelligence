@@ -26,6 +26,10 @@ export const colorMapping = {
   13: "secondary-pink",
   14: "secondary-pink",
   15: "main-dark-blue",
+  16: "main-dark-blue",
+  17: "main-dark-blue",
+  18: "main-dark-blue",
+  19: "main-dark-blue",
 };
 
 export function numberMovesScale(number) {

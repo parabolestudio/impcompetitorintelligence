@@ -70,11 +70,22 @@ export function Vis1() {
 
   const config = window.customChartsConfig || {};
 
+  // Bézier curve parameters
+  // cpOffset: vertical distance (fraction of total dy) from start/end
+  //           to first/second control point. 0 = straight, 0.5 = smooth S, 1 = extreme
+  const curveCpOffset = 0.3;
+  // cpSkew:   horizontal shift of control points (px). Positive = both CPs shift right.
+  //           0 = symmetric curve that follows the straight-line direction
+  const curveCpSkew = 0;
+  // cpSpread: extra horizontal spread applied symmetrically to the two CPs (px).
+  //           Positive = CPs pushed apart, Negative = CPs pulled together
+  const curveCpSpread = 0;
+
   const uniqueCompanyMoves = Array.from(
     new Set(newCompanyData.map((d) => d.totalMoves)),
   ).sort((a, b) => a - b);
   const marginSection3 = {
-    top: 100,
+    top: 180,
     left: 50,
     bottom: 110,
     right: 50,
@@ -222,6 +233,23 @@ export function Vis1() {
             </text>
           `;
         })}
+        ${linesData.map((d) => {
+          const dx = d.end.x - d.start.x;
+          const dy = d.end.y - d.start.y;
+          const cp1x = d.start.x + curveCpSkew - curveCpSpread + dx * 0;
+          const cp1y = d.start.y + dy * curveCpOffset;
+          const cp2x = d.end.x + curveCpSkew + curveCpSpread + dx * 0;
+          const cp2y = d.end.y - dy * curveCpOffset;
+          return html`
+            <path
+              d="M ${d.start.x},${d.start
+                .y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${d.end.x},${d.end.y}"
+              stroke="${d.color}"
+              stroke-width="2"
+              fill="none"
+            />
+          `;
+        })}
         ${sortedNewCompanyData.map((d) => {
           const x = newCompanyScaleX(d.name);
           const y = newCompanyScaleY(d.totalMoves);
@@ -229,18 +257,6 @@ export function Vis1() {
             <g transform="translate(${x}, ${y})">
               <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
             </g>
-          `;
-        })}
-        ${linesData.map((d) => {
-          return html`
-            <line
-              x1="${d.start.x}"
-              y1="${d.start.y}"
-              x2="${d.end.x}"
-              y2="${d.end.y}"
-              stroke="${d.color}"
-              stroke-width="2"
-            />
           `;
         })}
       </g>

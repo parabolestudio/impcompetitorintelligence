@@ -3,28 +3,50 @@ import { CompanyWithDiamond } from "./Company.js";
 // import { REPO_BASE_URL } from "./helpers.js";
 
 export function Vis1() {
-  const [data, setData] = useState(null);
+  const [movesData, setMovesData] = useState(null);
+  const [newCompanyData, setNewCompanyData] = useState(null);
 
   useEffect(() => {
     // Fetch data when the component mounts
     d3.csv(
       //   `${REPO_BASE_URL}/data/vis1_data.csv`,
-      `./data/data_vis1.csv`,
-    ).then((fetchedData) => {
-      //   fetchedData.forEach((d) => {
-      //     d["uninstallRate"] = +d["uninstall_rate"].replace("%", "");
-      //   });
+      `./data/data_vis1_transformed.csv`,
+    ).then((transformedData) => {
+      transformedData.forEach((d) => {
+        d["formerFirm"] = d["Former firm"];
+        d["newFirm"] = d["New firm"];
+        d["numberMoves"] = +d["Number of Moves"];
+      });
 
-      setData(fetchedData);
+      // sort by number of moves
+      transformedData.sort((a, b) => +b.numberMoves - +a.numberMoves);
+      setMovesData(transformedData);
+
+      // Extract unique new firms for the lower section
+      const uniqueNewFirms = Array.from(
+        new Set(transformedData.map((d) => d.newFirm)),
+      );
+      // for each new firm, find the total number of moves to that firm
+      const newCompanyData = uniqueNewFirms.map((newFirm) => {
+        const totalMoves = transformedData
+          .filter((d) => d.newFirm === newFirm)
+          .reduce((sum, d) => sum + d.numberMoves, 0);
+        return {
+          name: newFirm,
+          totalMoves,
+        };
+      });
+      setNewCompanyData(newCompanyData);
     });
   }, []);
 
-  if (!data) {
+  if (!movesData) {
     return html`<div>Loading data...</div>`;
   }
 
   console.log("Rendering vis 1 with ", {
-    data,
+    movesData,
+    newCompanyData,
   });
 
   // dimensions
@@ -87,17 +109,16 @@ export function Vis1() {
           />
           <text class="axis-text" y="${height1 + height2 - 5}">New firms</text>
         </g>
-        <g transform="translate(100, 600)">
-          <${CompanyWithDiamond} name="IFM Investors" number=${14} />
-          <circle cx="0" cy="0" r="5" fill="lightblue" />
-        </g>
-        <g transform="translate(300, 600)">
-          <${CompanyWithDiamond}
-            name="Ares Management Corporation"
-            number=${8}
-          />
-          <circle cx="0" cy="0" r="5" fill="red" />
-        </g>
+        ${newCompanyData.map((d, i) => {
+          const x = (i + 1) * (innerWidth / (newCompanyData.length + 1));
+          // add random jitter to y position to avoid overlap
+          const y = height1 + height2 + 50 + Math.random() * 200;
+          return html`
+            <g transform="translate(${x}, ${y})">
+              <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
+            </g>
+          `;
+        })}
       </g>
     </svg>
     <p class="vis-source">${config?.vis1?.source || "Source for Vis 1"}</p>

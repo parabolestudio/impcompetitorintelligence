@@ -58,4 +58,13 @@
       margin: 4px auto 0;
     }
   }
+
+  .axis-text {
+    fill: var(--color-vis-neutral-grey1, #738287);
+    font-family: "Archivo Narrow";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+  }
 }

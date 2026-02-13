@@ -68,4 +68,15 @@
     font-weight: 700;
     line-height: normal;
   }
+
+  .former-firm-text {
+    fill: var(--color-vis-neutral-imp-black-text, #0d121c);
+    font-family: "Archivo Narrow";
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    transform: rotate(-90deg);
+    transform-origin: 0 0;
+  }
 }

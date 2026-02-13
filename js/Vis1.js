@@ -77,21 +77,55 @@ export function Vis1() {
   const uniqueCompanyMoves = Array.from(
     new Set(newCompanyData.map((d) => d.totalMoves)),
   ).sort((a, b) => a - b);
-  const marginHeight3 = {
+  const marginSection3 = {
     top: 100,
+    left: 50,
     bottom: 110,
+    right: 50,
   };
   const scaleCompanyY = d3
     .scalePoint()
     .domain(uniqueCompanyMoves)
     .range([
-      height1 + height2 + marginHeight3.top,
-      height1 + height2 + height3 - marginHeight3.bottom,
+      height1 + height2 + marginSection3.top,
+      height1 + height2 + height3 - marginSection3.bottom,
     ]);
-
   const sortedNewCompanyData = [...newCompanyData].sort(
     (a, b) => a.totalMoves - b.totalMoves,
   );
+
+  const newCompanyScaleX = d3
+    .scalePoint()
+    .domain(Array.from(sortedNewCompanyData.map((d) => d.name)))
+    .range([marginSection3.left, innerWidth - marginSection3.right]);
+
+  // get unique former firms
+  const uniqueFormerFirms = Array.from(
+    new Set(movesData.map((d) => d.formerFirm)),
+  );
+  // sort unique former firms by total number of moves from that firm
+  // uniqueFormerFirms.sort((a, b) => {
+  //   const totalMovesA = movesData
+  //     .filter((d) => d.formerFirm === a)
+  //     .reduce((sum, d) => sum + d.numberMoves, 0);
+  //   const totalMovesB = movesData
+  //     .filter((d) => d.formerFirm === b)
+  //     .reduce((sum, d) => sum + d.numberMoves, 0);
+  //   return totalMovesB - totalMovesA;
+  // });
+
+  // sort unique former firms by name
+  uniqueFormerFirms.sort((a, b) => a.localeCompare(b));
+
+  const marginSection1 = {
+    left: 90,
+    right: 90,
+  };
+  const formerFirmScaleX = d3
+    .scalePoint()
+    .domain(uniqueFormerFirms)
+    .range([marginSection1.left, innerWidth - marginSection1.right]);
+  console.log("Unique former firms: ", uniqueFormerFirms);
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
@@ -128,8 +162,16 @@ export function Vis1() {
           />
           <text class="axis-text" y="${height1 + height2 - 5}">New firms</text>
         </g>
-        ${sortedNewCompanyData.map((d, i) => {
-          const x = (i + 1) * (innerWidth / (newCompanyData.length + 1));
+        ${uniqueFormerFirms.map((d, i) => {
+          const positionX = formerFirmScaleX(d);
+          return html`
+            <text class="former-firm-text" x="-${height1 - 2}" y="${positionX}">
+              ${d}
+            </text>
+          `;
+        })}
+        ${sortedNewCompanyData.map((d) => {
+          const x = newCompanyScaleX(d.name);
           const y = scaleCompanyY(d.totalMoves);
           return html`
             <g transform="translate(${x}, ${y})">

@@ -187,8 +187,17 @@ export function Vis1() {
           4,
       },
       color: `var(--color-vis-${colorMapping[newCompany.totalMoves]})`,
+      colorKey: colorMapping[newCompany.totalMoves],
     };
   });
+
+  // Extract unique colors for gradient definitions
+  const uniqueColors = Array.from(
+    new Set(linesData.map((d) => d.colorKey)),
+  ).map((colorKey) => ({
+    key: colorKey,
+    cssVar: `var(--color-vis-${colorKey})`,
+  }));
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
@@ -200,6 +209,23 @@ export function Vis1() {
       style="background: #ccc;"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <defs>
+        ${uniqueColors.map((colorObj) => {
+          return html`
+            <linearGradient
+              id="gradient-${colorObj.key}"
+              x1="0"
+              y1="${height1}"
+              x2="0"
+              y2="${height1 + height2}"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="${colorObj.cssVar}" stop-opacity="0.3" />
+              <stop offset="1" stop-color="${colorObj.cssVar}" />
+            </linearGradient>
+          `;
+        })}
+      </defs>
       <g transform="translate(${margin.left}, ${margin.top})">
         <rect
           width="${innerWidth}"
@@ -244,7 +270,7 @@ export function Vis1() {
             <path
               d="M ${d.start.x},${d.start
                 .y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${d.end.x},${d.end.y}"
-              stroke="${d.color}"
+              stroke="url(#gradient-${d.colorKey})"
               stroke-width="2"
               fill="none"
             />

@@ -1,5 +1,6 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamond } from "./Company.js";
+import { Tooltip } from "./Tooltip.js";
 import { numberMovesScale, colorMapping } from "./helpers.js";
 import { REPO_BASE_URL } from "./helpers.js";
 
@@ -202,6 +203,8 @@ export function Vis1() {
 
   console.log("hoveredObject", hoveredObject);
 
+  const tooltipWidth = 280;
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
     <p class="vis-subtitle">
@@ -259,11 +262,28 @@ export function Vis1() {
           </g>
           ${uniqueFormerFirms.map((d, i) => {
             const positionX = formerFirmScaleX(d);
+
+            // find out if this former firm is connected to the currently hovered new company (if any)
+            const isConnectedToHoveredNewCompany =
+              hoveredObject &&
+              hoveredObject.hoverType === "newCompany" &&
+              movesData.some(
+                (move) =>
+                  move.formerFirm === d &&
+                  move.newFirm === hoveredObject.newCompany,
+              );
+
+            const isFaded =
+              hoveredObject &&
+              hoveredObject.hoverType === "newCompany" &&
+              !isConnectedToHoveredNewCompany;
+
             return html`
               <text
                 class="former-firm-text"
                 x="-${height1 - 2}"
                 y="${positionX}"
+                opacity="${isFaded ? 0.2 : 1}"
               >
                 ${d}
               </text>
@@ -276,6 +296,10 @@ export function Vis1() {
             const cp1y = d.start.y + dy * curveCpOffset;
             const cp2x = d.end.x + curveCpSkew + curveCpSpread + dx * 0;
             const cp2y = d.end.y - dy * curveCpOffset;
+            const isFaded =
+              hoveredObject &&
+              hoveredObject.hoverType === "newCompany" &&
+              hoveredObject.newCompany !== d.newFirm;
             return html`
               <path
                 d="M ${d.start.x},${d.start
@@ -283,21 +307,29 @@ export function Vis1() {
                 stroke="url(#gradient-${d.colorKey})"
                 stroke-width="2"
                 fill="none"
+                opacity="${isFaded ? 0.2 : 1}"
               />
             `;
           })}
           ${sortedNewCompanyData.map((d) => {
             const x = newCompanyScaleX(d.name);
             const y = newCompanyScaleY(d.totalMoves);
+            const isFaded =
+              hoveredObject &&
+              hoveredObject.hoverType === "newCompany" &&
+              hoveredObject.newCompany !== d.name;
             return html`
               <g
                 transform="translate(${x}, ${y})"
                 class="new-company-group"
                 onmouseenter=${(event) => {
+                  const container = event.currentTarget.closest(".vis-content");
+                  const rect = container.getBoundingClientRect();
                   setHoveredObject({
                     hoverType: "newCompany",
-                    x: d3.pointer(event)[0],
-                    y: d3.pointer(event)[1],
+                    newCompany: d.name,
+                    x: x + tooltipWidth / 2 - rect.left,
+                    y: event.clientY - rect.top,
                     tooltipContent: [
                       { label: "New firm", value: d.name },
                       { label: "Number of moves", value: d.totalMoves },
@@ -308,7 +340,11 @@ export function Vis1() {
                 }}
                 onmouseleave=${() => setHoveredObject(null)}
               >
-                <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
+                <${CompanyWithDiamond}
+                  name=${d.name}
+                  number=${d.totalMoves}
+                  isFaded=${isFaded}
+                />
               </g>
             `;
           })}
@@ -317,22 +353,5 @@ export function Vis1() {
       <${Tooltip} hoveredItem=${hoveredObject} />
     </div>
     <p class="vis-source">${config?.vis1?.source || "Source for Vis 1"}</p>
-  </div>`;
-}
-
-function Tooltip({ hoveredItem }) {
-  if (!hoveredItem || !hoveredItem.tooltipContent) return null;
-
-  return html`<div
-    class="tooltip"
-    style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
-  >
-    ${hoveredItem.tooltipContent.map(
-      (item) =>
-        html` <div>
-          <p class="tooltip-label">${item.label}</p>
-          <p class="tooltip-value">${item.value}</p>
-        </div>`,
-    )}
   </div>`;
 }

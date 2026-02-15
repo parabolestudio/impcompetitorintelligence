@@ -38,8 +38,10 @@ export function Company({ name, number }) {
   </g>`;
 }
 
-export function CompanyWithDiamond({ name, number }) {
-  return html`<g>
+export function CompanyWithDiamond({ name, number, isFaded }) {
+  return html`<g
+    style="opacity: ${isFaded ? 0.2 : 1}; transition: opacity 0.3s;"
+  >
     <${Diamond} number=${number} />
     <${Company} name=${name} number=${number} />
   </g>`;

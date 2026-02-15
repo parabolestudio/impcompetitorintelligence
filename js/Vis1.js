@@ -1,8 +1,12 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamond } from "./Company.js";
 import { Tooltip } from "./Tooltip.js";
-import { numberMovesScale, colorMapping } from "./helpers.js";
-import { REPO_BASE_URL } from "./helpers.js";
+import {
+  numberMovesScale,
+  colorMapping,
+  logoMapping,
+  REPO_BASE_URL,
+} from "./helpers.js";
 
 export function Vis1() {
   const [movesData, setMovesData] = useState(null);
@@ -307,7 +311,8 @@ export function Vis1() {
                 stroke="url(#gradient-${d.colorKey})"
                 stroke-width="2"
                 fill="none"
-                opacity="${isFaded ? 0.2 : 1}"
+                style="transition: stroke-opacity 0.3s;"
+                stroke-opacity="${isFaded ? 0.2 : 1}"
               />
             `;
           })}
@@ -336,6 +341,12 @@ export function Vis1() {
                       { label: "Positions offered", value: "..." },
                       { label: "Teams involved", value: "..." },
                     ],
+                    tooltipUpperContent: html`
+                      <img
+                        src="${`./assets/companyLogos/${logoMapping[d.name] || "Brookfield.png"}`}"
+                        class="company-logo-tooltip"
+                      />
+                    `,
                   });
                 }}
                 onmouseleave=${() => setHoveredObject(null)}

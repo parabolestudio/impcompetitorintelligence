@@ -8,6 +8,9 @@ export function Tooltip({ hoveredItem }) {
     style="left: ${hoveredItem.x +
     20}px; top: ${hoveredItem.y}px; transform: translateY(-50%);"
   >
+    ${"tooltipUpperContent" in hoveredItem
+      ? hoveredItem.tooltipUpperContent
+      : html`<p><strong>${hoveredItem.name}</strong></p>`}
     ${hoveredItem.tooltipContent.map(
       (item) =>
         html` <div>

@@ -59,6 +59,10 @@
       max-width: 84px;
     }
   }
+  .company-logo-tooltip {
+    margin: 0 auto;
+    height: 20px;
+  }
 
   .axis-text {
     fill: var(--color-vis-neutral-grey1, #738287);
@@ -78,6 +82,7 @@
     line-height: normal;
     transform: rotate(-90deg);
     transform-origin: 0 0;
+    transition: opacity 0.3s;
   }
 
   .new-company-group {

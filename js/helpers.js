@@ -32,8 +32,30 @@ export const colorMapping = {
   19: "main-dark-blue",
 };
 
+// TODO: make domain and range dynamic based on data
 export function numberMovesScale(number) {
   const scaleSize = d3.scaleLinear().domain([3, 16]).range([17, 38]);
   const size = scaleSize(number);
   return size;
 }
+
+export const logoMapping = {
+  "Apollo Global Management": "Apollo_Global_Management.png",
+  "Ares Management Corporation": "Ares_Management.png",
+  "Bain Capital": "Bain_Capital.png",
+  Barings: "Barings.png",
+  Blackstone: "Blackstone.png",
+  "Blue Owl Capital": "Blue_Owl.png",
+  Brookfield: "Brookfield.png",
+  "The Carlyle Group": "Carlyle.png",
+  CVC: "CVC.png",
+  "DWS Group": "DWS_Group.png",
+  EQT: "EQT.png",
+  "IFM Investors": "IFM_Investors.png",
+  KKR: "Kohlberg_Kravis_Roberts.png",
+  "Oaktree Capital Management, L.P.": "Oaktree.png",
+  "Partners Group": "Partners_Group_Icon 2.png",
+  PGIM: "PGIM.png",
+  TPG: "TPG.png",
+  "Warburg Pincus LLC": "Warburg_Pincus.png",
+};

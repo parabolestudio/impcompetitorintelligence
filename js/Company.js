@@ -1,27 +1,6 @@
 import Diamond from "./Diamond.js";
 import { html } from "./preact-htm.js";
-import { numberMovesScale } from "./helpers.js";
-
-const logoMapping = {
-  "Apollo Global Management": "Apollo_Global_Management.png",
-  "Ares Management Corporation": "Ares_Management.png",
-  "Bain Capital": "Bain_Capital.png",
-  Barings: "Barings.png",
-  Blackstone: "Blackstone.png",
-  "Blue Owl Capital": "Blue_Owl.png",
-  Brookfield: "Brookfield.png",
-  "The Carlyle Group": "Carlyle.png",
-  CVC: "CVC.png",
-  "DWS Group": "DWS_Group.png",
-  EQT: "EQT.png",
-  "IFM Investors": "IFM_Investors.png",
-  KKR: "Kohlberg_Kravis_Roberts.png",
-  "Oaktree Capital Management, L.P.": "Oaktree.png",
-  "Partners Group": "Partners_Group_Icon 2.png",
-  PGIM: "PGIM.png",
-  TPG: "TPG.png",
-  "Warburg Pincus LLC": "Warburg_Pincus.png",
-};
+import { numberMovesScale, logoMapping } from "./helpers.js";
 
 export function Company({ name, number }) {
   const width = 84;

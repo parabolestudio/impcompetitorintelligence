@@ -1,6 +1,7 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamond } from "./Company.js";
 import { Tooltip } from "./Tooltip.js";
+import Fallback from "./Fallback.js";
 import {
   numberMovesScale,
   colorMapping,
@@ -12,6 +13,26 @@ export function Vis1() {
   const [movesData, setMovesData] = useState(null);
   const [newCompanyData, setNewCompanyData] = useState(null);
   const [hoveredObject, setHoveredObject] = useState(null);
+
+  const MOBILE_THRESHOLD = 1200;
+  const [showFallback, setShowFallback] = useState(
+    window.innerWidth < MOBILE_THRESHOLD,
+  );
+
+  // on resize, clear hovered object to prevent tooltip from getting stuck in wrong position and render fallback if width is below threshold
+  useEffect(() => {
+    function handleResize() {
+      setHoveredObject(null);
+      setShowFallback(window.innerWidth < MOBILE_THRESHOLD);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // mobile fallback
+  if (showFallback) {
+    return html`<${Fallback} />`;
+  }
 
   useEffect(() => {
     // Fetch data when the component mounts
@@ -199,8 +220,6 @@ export function Vis1() {
   const linesData = movesData.map((d) => {
     // find new company data for this move's new firm
     const newCompany = newCompanyData.find((c) => c.name === d.newFirm);
-
-    console.log("Processing move for line data:", d);
     return {
       formerFirm: d.formerFirm,
       newFirm: d.newFirm,

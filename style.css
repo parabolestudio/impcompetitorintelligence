@@ -137,3 +137,41 @@
     }
   }
 }
+
+.fallback {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+
+  .fallback-message {
+    color: var(--color-vis-neutral-imp-black-text, #0d121c);
+    text-align: center;
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
+  .fallback-button {
+    display: flex;
+    width: 102px;
+    height: 40px;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    background: #40b3c2;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 0.25px;
+  }
+}

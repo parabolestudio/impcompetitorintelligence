@@ -79,4 +79,55 @@
     transform: rotate(-90deg);
     transform-origin: 0 0;
   }
+
+  .new-company-group {
+    cursor: pointer;
+  }
+
+  .vis-content {
+    position: relative;
+  }
+
+  /*
+    Tooltip for multiple visualizations
+  */
+  .tooltip {
+    position: absolute;
+    box-shadow: 0.5px 0.5px 4px 1px rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    background-color: white;
+
+    display: flex;
+    width: 280px;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    transition: all 0.3s ease;
+
+    display: flex;
+    pointer-events: none;
+
+    p.tooltip-label {
+      color: var(--color-vis-neutral-imp-black-text, #0d121c);
+      font-family: "Archivo Narrow";
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+
+    p.tooltip-value {
+      color: var(--color-vis-neutral-imp-black-text, #0d121c);
+      font-family: "Archivo Narrow";
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+  }
 }

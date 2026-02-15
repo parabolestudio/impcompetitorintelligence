@@ -1,17 +1,18 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamond } from "./Company.js";
 import { numberMovesScale, colorMapping } from "./helpers.js";
-// import { REPO_BASE_URL } from "./helpers.js";
+import { REPO_BASE_URL } from "./helpers.js";
 
 export function Vis1() {
   const [movesData, setMovesData] = useState(null);
   const [newCompanyData, setNewCompanyData] = useState(null);
+  const [hoveredObject, setHoveredObject] = useState(null);
 
   useEffect(() => {
     // Fetch data when the component mounts
     d3.csv(
-      //   `${REPO_BASE_URL}/data/vis1_data.csv`,
-      `./data/data_vis1_transformed.csv`,
+      `${REPO_BASE_URL}/data/data_vis1_transformed.csv`,
+      // `./data/data_vis1_transformed.csv`,
     ).then((transformedData) => {
       transformedData.forEach((d) => {
         d["formerFirm"] = d["Former firm"];
@@ -45,10 +46,10 @@ export function Vis1() {
     return html`<div>Loading data...</div>`;
   }
 
-  console.log("Rendering vis 1 with ", {
-    movesData,
-    newCompanyData,
-  });
+  // console.log("Rendering vis 1 with ", {
+  //   movesData,
+  //   newCompanyData,
+  // });
 
   // dimensions
   const visContainer = document.querySelector("#vis-1");
@@ -199,94 +200,139 @@ export function Vis1() {
     cssVar: `var(--color-vis-${colorKey})`,
   }));
 
+  console.log("hoveredObject", hoveredObject);
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis1?.title || "Title for Vis 1"}</p>
     <p class="vis-subtitle">
       ${config?.vis1?.subtitle || "Subtitle for Vis 1"}
     </p>
-    <svg
-      viewBox="0 0 ${width} ${height}"
-      style="background: #ccc;"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        ${uniqueColors.map((colorObj) => {
-          return html`
-            <linearGradient
-              id="gradient-${colorObj.key}"
+    <div class="vis-content">
+      <svg
+        viewBox="0 0 ${width} ${height}"
+        style="background: #ccc;"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          ${uniqueColors.map((colorObj) => {
+            return html`
+              <linearGradient
+                id="gradient-${colorObj.key}"
+                x1="0"
+                y1="${height1}"
+                x2="0"
+                y2="${height1 + height2}"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="${colorObj.cssVar}" stop-opacity="0.3" />
+                <stop offset="1" stop-color="${colorObj.cssVar}" />
+              </linearGradient>
+            `;
+          })}
+        </defs>
+        <g transform="translate(${margin.left}, ${margin.top})">
+          <rect
+            width="${innerWidth}"
+            height="${innerHeight}"
+            fill="#f2f2f2"
+            stroke="none"
+          />
+          <g>
+            <line
               x1="0"
               y1="${height1}"
-              x2="0"
-              y2="${height1 + height2}"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stop-color="${colorObj.cssVar}" stop-opacity="0.3" />
-              <stop offset="1" stop-color="${colorObj.cssVar}" />
-            </linearGradient>
-          `;
-        })}
-      </defs>
-      <g transform="translate(${margin.left}, ${margin.top})">
-        <rect
-          width="${innerWidth}"
-          height="${innerHeight}"
-          fill="#f2f2f2"
-          stroke="none"
-        />
-        <g>
-          <line
-            x1="0"
-            y1="${height1}"
-            x2="${width}"
-            y2="${height1}"
-            stroke="var(--color-vis-neutral-grey2)"
-          />
-          <text class="axis-text" y="${height1 - 5}">Former firms</text>
-          <line
-            x1="0"
-            y1="${height1 + height2}"
-            x2="${width}"
-            y2="${height1 + height2}"
-            stroke="var(--color-vis-neutral-grey2)"
-          />
-          <text class="axis-text" y="${height1 + height2 - 5}">New firms</text>
-        </g>
-        ${uniqueFormerFirms.map((d, i) => {
-          const positionX = formerFirmScaleX(d);
-          return html`
-            <text class="former-firm-text" x="-${height1 - 2}" y="${positionX}">
-              ${d}
-            </text>
-          `;
-        })}
-        ${linesData.map((d) => {
-          const dx = d.end.x - d.start.x;
-          const dy = d.end.y - d.start.y;
-          const cp1x = d.start.x + curveCpSkew - curveCpSpread + dx * 0;
-          const cp1y = d.start.y + dy * curveCpOffset;
-          const cp2x = d.end.x + curveCpSkew + curveCpSpread + dx * 0;
-          const cp2y = d.end.y - dy * curveCpOffset;
-          return html`
-            <path
-              d="M ${d.start.x},${d.start
-                .y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${d.end.x},${d.end.y}"
-              stroke="url(#gradient-${d.colorKey})"
-              stroke-width="2"
-              fill="none"
+              x2="${width}"
+              y2="${height1}"
+              stroke="var(--color-vis-neutral-grey2)"
             />
-          `;
-        })}
-        ${sortedNewCompanyData.map((d) => {
-          const x = newCompanyScaleX(d.name);
-          const y = newCompanyScaleY(d.totalMoves);
-          return html`
-            <g transform="translate(${x}, ${y})">
-              <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
-            </g>
-          `;
-        })}
-      </g>
-    </svg>
+            <text class="axis-text" y="${height1 - 5}">Former firms</text>
+            <line
+              x1="0"
+              y1="${height1 + height2}"
+              x2="${width}"
+              y2="${height1 + height2}"
+              stroke="var(--color-vis-neutral-grey2)"
+            />
+            <text class="axis-text" y="${height1 + height2 - 5}">
+              New firms
+            </text>
+          </g>
+          ${uniqueFormerFirms.map((d, i) => {
+            const positionX = formerFirmScaleX(d);
+            return html`
+              <text
+                class="former-firm-text"
+                x="-${height1 - 2}"
+                y="${positionX}"
+              >
+                ${d}
+              </text>
+            `;
+          })}
+          ${linesData.map((d) => {
+            const dx = d.end.x - d.start.x;
+            const dy = d.end.y - d.start.y;
+            const cp1x = d.start.x + curveCpSkew - curveCpSpread + dx * 0;
+            const cp1y = d.start.y + dy * curveCpOffset;
+            const cp2x = d.end.x + curveCpSkew + curveCpSpread + dx * 0;
+            const cp2y = d.end.y - dy * curveCpOffset;
+            return html`
+              <path
+                d="M ${d.start.x},${d.start
+                  .y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${d.end.x},${d.end.y}"
+                stroke="url(#gradient-${d.colorKey})"
+                stroke-width="2"
+                fill="none"
+              />
+            `;
+          })}
+          ${sortedNewCompanyData.map((d) => {
+            const x = newCompanyScaleX(d.name);
+            const y = newCompanyScaleY(d.totalMoves);
+            return html`
+              <g
+                transform="translate(${x}, ${y})"
+                class="new-company-group"
+                onmouseenter=${(event) => {
+                  setHoveredObject({
+                    hoverType: "newCompany",
+                    x: d3.pointer(event)[0],
+                    y: d3.pointer(event)[1],
+                    tooltipContent: [
+                      { label: "New firm", value: d.name },
+                      { label: "Number of moves", value: d.totalMoves },
+                      { label: "Positions offered", value: "..." },
+                      { label: "Teams involved", value: "..." },
+                    ],
+                  });
+                }}
+                onmouseleave=${() => setHoveredObject(null)}
+              >
+                <${CompanyWithDiamond} name=${d.name} number=${d.totalMoves} />
+              </g>
+            `;
+          })}
+        </g>
+      </svg>
+      <${Tooltip} hoveredItem=${hoveredObject} />
+    </div>
     <p class="vis-source">${config?.vis1?.source || "Source for Vis 1"}</p>
+  </div>`;
+}
+
+function Tooltip({ hoveredItem }) {
+  if (!hoveredItem || !hoveredItem.tooltipContent) return null;
+
+  return html`<div
+    class="tooltip"
+    style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
+  >
+    ${hoveredItem.tooltipContent.map(
+      (item) =>
+        html` <div>
+          <p class="tooltip-label">${item.label}</p>
+          <p class="tooltip-value">${item.value}</p>
+        </div>`,
+    )}
   </div>`;
 }

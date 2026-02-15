@@ -29,6 +29,7 @@ export function Vis1() {
         d["positionsWithSeniority"] = d["Seniorities (IMP defined)"]
           .split(";")
           .map((s) => s.trim());
+        d["jobTitles"] = d["New job titles"].split(";").map((s) => s.trim());
       });
 
       // sort by number of moves
@@ -93,7 +94,7 @@ export function Vis1() {
   };
 
   const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
+  // const innerHeight = height - margin.top - margin.bottom;
 
   const config = window.customChartsConfig || {};
 
@@ -198,10 +199,13 @@ export function Vis1() {
   const linesData = movesData.map((d) => {
     // find new company data for this move's new firm
     const newCompany = newCompanyData.find((c) => c.name === d.newFirm);
+
+    console.log("Processing move for line data:", d);
     return {
       formerFirm: d.formerFirm,
       newFirm: d.newFirm,
       numberMoves: d.numberMoves,
+      jobTitles: d.jobTitles,
       start: {
         x: formerFirmScaleX(d.formerFirm),
         y: height1 + 4,
@@ -287,9 +291,12 @@ export function Vis1() {
               );
 
             const isFaded =
-              hoveredObject &&
-              hoveredObject.hoverType === "newCompany" &&
-              !isConnectedToHoveredNewCompany;
+              (hoveredObject &&
+                hoveredObject.hoverType === "newCompany" &&
+                !isConnectedToHoveredNewCompany) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "move" &&
+                hoveredObject.formerCompany !== d);
 
             return html`
               <text
@@ -310,9 +317,13 @@ export function Vis1() {
             const cp2x = d.end.x + curveCpSkew + curveCpSpread + dx * 0;
             const cp2y = d.end.y - dy * curveCpOffset;
             const isFaded =
-              hoveredObject &&
-              hoveredObject.hoverType === "newCompany" &&
-              hoveredObject.newCompany !== d.newFirm;
+              (hoveredObject &&
+                hoveredObject.hoverType === "newCompany" &&
+                hoveredObject.newCompany !== d.newFirm) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "move" &&
+                (hoveredObject.newCompany !== d.newFirm ||
+                  hoveredObject.formerCompany !== d.formerFirm));
             return html`
               <path
                 d="M ${d.start.x},${d.start
@@ -320,8 +331,34 @@ export function Vis1() {
                 stroke="url(#gradient-${d.colorKey})"
                 stroke-width="2"
                 fill="none"
-                style="transition: stroke-opacity 0.3s;"
+                style="transition: stroke-opacity 0.3s; cursor: pointer;"
                 stroke-opacity="${isFaded ? 0.2 : 1}"
+                onmouseenter=${(event) => {
+                  const container = event.currentTarget.closest(".vis-content");
+                  const rect = container.getBoundingClientRect();
+                  setHoveredObject({
+                    hoverType: "move",
+                    formerCompany: d.formerFirm,
+                    newCompany: d.newFirm,
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top,
+                    tooltipContent: [
+                      {
+                        label: "Move",
+                        value: html`${d.formerFirm} → ${d.newFirm}`,
+                      },
+                      {
+                        label: "Number of moves",
+                        value: d.numberMoves,
+                      },
+                      {
+                        label: "New job title",
+                        value: d.jobTitles ? d.jobTitles.join(", ") : "N/A",
+                      },
+                    ],
+                  });
+                }}
+                onmouseleave=${() => setHoveredObject(null)}
               />
             `;
           })}
@@ -329,9 +366,12 @@ export function Vis1() {
             const x = newCompanyScaleX(d.name);
             const y = newCompanyScaleY(d.totalMoves);
             const isFaded =
-              hoveredObject &&
-              hoveredObject.hoverType === "newCompany" &&
-              hoveredObject.newCompany !== d.name;
+              (hoveredObject &&
+                hoveredObject.hoverType === "newCompany" &&
+                hoveredObject.newCompany !== d.name) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "move" &&
+                hoveredObject.newCompany !== d.name);
             return html`
               <g
                 transform="translate(${x}, ${y})"

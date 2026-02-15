@@ -10,7 +10,7 @@ export function Tooltip({ hoveredItem }) {
   >
     ${"tooltipUpperContent" in hoveredItem
       ? hoveredItem.tooltipUpperContent
-      : html`<p><strong>${hoveredItem.name}</strong></p>`}
+      : null}
     ${hoveredItem.tooltipContent.map(
       (item) =>
         html` <div>

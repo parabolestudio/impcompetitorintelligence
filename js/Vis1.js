@@ -296,6 +296,9 @@ export function Vis1() {
                 !isConnectedToHoveredNewCompany) ||
               (hoveredObject &&
                 hoveredObject.hoverType === "move" &&
+                hoveredObject.formerCompany !== d) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "formerCompany" &&
                 hoveredObject.formerCompany !== d);
 
             return html`
@@ -304,6 +307,36 @@ export function Vis1() {
                 x="-${height1 - 2}"
                 y="${positionX}"
                 opacity="${isFaded ? 0.2 : 1}"
+                onmouseenter=${(event) => {
+                  const container = event.currentTarget.closest(".vis-content");
+                  const rect = container.getBoundingClientRect();
+                  const connectedNewFirms = movesData
+                    .filter((move) => move.formerFirm === d)
+                    .map((move) => move.newFirm);
+                  setHoveredObject({
+                    hoverType: "formerCompany",
+                    formerCompany: d,
+                    newCompany: connectedNewFirms,
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top,
+                    tooltipContent: [
+                      { label: "Former firm", value: d },
+                      {
+                        label: "Connected new firms",
+                        value: connectedNewFirms
+                          .sort((a, b) => a.localeCompare(b))
+                          .join(", "),
+                      },
+                      {
+                        label: "Number of moves",
+                        value: movesData
+                          .filter((move) => move.formerFirm === d)
+                          .reduce((sum, move) => sum + move.numberMoves, 0),
+                      },
+                    ],
+                  });
+                }}
+                onmouseleave=${() => setHoveredObject(null)}
               >
                 ${d}
               </text>
@@ -323,7 +356,10 @@ export function Vis1() {
               (hoveredObject &&
                 hoveredObject.hoverType === "move" &&
                 (hoveredObject.newCompany !== d.newFirm ||
-                  hoveredObject.formerCompany !== d.formerFirm));
+                  hoveredObject.formerCompany !== d.formerFirm)) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "formerCompany" &&
+                hoveredObject.formerCompany !== d.formerFirm);
             return html`
               <path
                 d="M ${d.start.x},${d.start
@@ -371,7 +407,10 @@ export function Vis1() {
                 hoveredObject.newCompany !== d.name) ||
               (hoveredObject &&
                 hoveredObject.hoverType === "move" &&
-                hoveredObject.newCompany !== d.name);
+                hoveredObject.newCompany !== d.name) ||
+              (hoveredObject &&
+                hoveredObject.hoverType === "formerCompany" &&
+                !hoveredObject.newCompany.includes(d.name));
             return html`
               <g
                 transform="translate(${x}, ${y})"

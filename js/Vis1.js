@@ -23,6 +23,12 @@ export function Vis1() {
         d["formerFirm"] = d["Former firm"];
         d["newFirm"] = d["New firm"];
         d["numberMoves"] = +d["Number of Moves"];
+        d["teamInvolved"] = d["Teams (IMP defined)"]
+          .split(";")
+          .map((s) => s.trim());
+        d["positionsWithSeniority"] = d["Seniorities (IMP defined)"]
+          .split(";")
+          .map((s) => s.trim());
       });
 
       // sort by number of moves
@@ -38,9 +44,24 @@ export function Vis1() {
         const totalMoves = transformedData
           .filter((d) => d.newFirm === newFirm)
           .reduce((sum, d) => sum + d.numberMoves, 0);
+
+        const teamsInvolved = transformedData
+          .filter((d) => d.newFirm === newFirm)
+          .flatMap((d) => d.teamInvolved);
+        const uniqueTeams = Array.from(new Set(teamsInvolved));
+
+        const positionsWithSeniority = transformedData
+          .filter((d) => d.newFirm === newFirm)
+          .flatMap((d) => d.positionsWithSeniority);
+        const uniquePositionsWithSeniority = Array.from(
+          new Set(positionsWithSeniority),
+        );
+
         return {
           name: newFirm,
           totalMoves,
+          teamsInvolved: uniqueTeams,
+          positionsWithSeniority: uniquePositionsWithSeniority,
         };
       });
       setNewCompanyData(newCompanyData);
@@ -51,10 +72,10 @@ export function Vis1() {
     return html`<div>Loading data...</div>`;
   }
 
-  // console.log("Rendering vis 1 with ", {
-  //   movesData,
-  //   newCompanyData,
-  // });
+  console.log("Rendering vis 1 with ", {
+    movesData,
+    newCompanyData,
+  });
 
   // dimensions
   const visContainer = document.querySelector("#vis-1");
@@ -205,8 +226,6 @@ export function Vis1() {
     cssVar: `var(--color-vis-${colorKey})`,
   }));
 
-  console.log("hoveredObject", hoveredObject);
-
   const tooltipWidth = 280;
 
   return html`<div class="vis-container">
@@ -215,11 +234,7 @@ export function Vis1() {
       ${config?.vis1?.subtitle || "Subtitle for Vis 1"}
     </p>
     <div class="vis-content">
-      <svg
-        viewBox="0 0 ${width} ${height}"
-        style="background: #ccc;"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
         <defs>
           ${uniqueColors.map((colorObj) => {
             return html`
@@ -238,12 +253,6 @@ export function Vis1() {
           })}
         </defs>
         <g transform="translate(${margin.left}, ${margin.top})">
-          <rect
-            width="${innerWidth}"
-            height="${innerHeight}"
-            fill="#f2f2f2"
-            stroke="none"
-          />
           <g>
             <line
               x1="0"
@@ -338,8 +347,18 @@ export function Vis1() {
                     tooltipContent: [
                       { label: "New firm", value: d.name },
                       { label: "Number of moves", value: d.totalMoves },
-                      { label: "Positions offered", value: "..." },
-                      { label: "Teams involved", value: "..." },
+                      {
+                        label: "Positions offered",
+                        value: d.positionsWithSeniority
+                          .sort((a, b) => a.localeCompare(b))
+                          .join(", "),
+                      },
+                      {
+                        label: "Teams involved",
+                        value: d.teamsInvolved
+                          .sort((a, b) => a.localeCompare(b))
+                          .join(", "),
+                      },
                     ],
                     tooltipUpperContent: html`
                       <img

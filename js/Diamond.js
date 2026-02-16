@@ -1,11 +1,10 @@
 import { html } from "./preact-htm.js";
 import { colorMapping, numberMovesScale } from "./helpers.js";
 
-export default function Diamond({ number }) {
-  // console.log("Rendering Diamond with props:", { number });
+export default function Diamond({ number, hoverFunction }) {
   const size = numberMovesScale(number);
 
-  return html`<g class="diamond">
+  return html`<g class="diamond" onmouseenter=${hoverFunction}>
     <rect
       width="${size}"
       height="${size}"

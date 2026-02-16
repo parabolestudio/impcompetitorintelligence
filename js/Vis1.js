@@ -430,48 +430,60 @@ export function Vis1() {
               (hoveredObject &&
                 hoveredObject.hoverType === "formerCompany" &&
                 !hoveredObject.newCompany.includes(d.name));
+
+            const hoverFunction = (event) => {
+              const rect = event.currentTarget
+                .closest(".vis-content")
+                .getBoundingClientRect();
+
+              const tooltipX =
+                newCompanyScaleX(d.name) + tooltipWidth - rect.left - 10;
+
+              // If the tooltip would overflow to the right, position it to the left of the company instead
+              const adjustedTooltipX =
+                tooltipX + tooltipWidth > rect.width
+                  ? newCompanyScaleX(d.name) - rect.left - tooltipWidth / 2 + 40
+                  : tooltipX;
+              setHoveredObject({
+                hoverType: "newCompany",
+                newCompany: d.name,
+                x: adjustedTooltipX,
+                y: event.clientY - rect.top,
+                tooltipContent: [
+                  { label: "New firm", value: d.name },
+                  { label: "Number of moves", value: d.totalMoves },
+                  {
+                    label: "Positions offered",
+                    value: d.positionsWithSeniority
+                      .sort((a, b) => a.localeCompare(b))
+                      .join(", "),
+                  },
+                  {
+                    label: "Teams involved",
+                    value: d.teamsInvolved
+                      .sort((a, b) => a.localeCompare(b))
+                      .join(", "),
+                  },
+                ],
+                tooltipUpperContent: html`
+                  <img
+                    src="${`./assets/companyLogos/${logoMapping[d.name] || "Brookfield.png"}`}"
+                    class="company-logo-tooltip"
+                  />
+                `,
+              });
+            };
             return html`
               <g
                 transform="translate(${x}, ${y})"
                 class="new-company-group"
-                onmouseenter=${(event) => {
-                  const container = event.currentTarget.closest(".vis-content");
-                  const rect = container.getBoundingClientRect();
-                  setHoveredObject({
-                    hoverType: "newCompany",
-                    newCompany: d.name,
-                    x: x + tooltipWidth / 2 - rect.left,
-                    y: event.clientY - rect.top,
-                    tooltipContent: [
-                      { label: "New firm", value: d.name },
-                      { label: "Number of moves", value: d.totalMoves },
-                      {
-                        label: "Positions offered",
-                        value: d.positionsWithSeniority
-                          .sort((a, b) => a.localeCompare(b))
-                          .join(", "),
-                      },
-                      {
-                        label: "Teams involved",
-                        value: d.teamsInvolved
-                          .sort((a, b) => a.localeCompare(b))
-                          .join(", "),
-                      },
-                    ],
-                    tooltipUpperContent: html`
-                      <img
-                        src="${`./assets/companyLogos/${logoMapping[d.name] || "Brookfield.png"}`}"
-                        class="company-logo-tooltip"
-                      />
-                    `,
-                  });
-                }}
                 onmouseleave=${() => setHoveredObject(null)}
               >
                 <${CompanyWithDiamond}
                   name=${d.name}
                   number=${d.totalMoves}
                   isFaded=${isFaded}
+                  hoverFunction=${hoverFunction}
                 />
               </g>
             `;

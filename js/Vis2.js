@@ -115,8 +115,108 @@ export function Vis2() {
 
   const config = window.customChartsConfig || {};
 
+  // pre-calculate country positions grouped by continent
+  const countryPositions = {};
+  if (countriesCentricData) {
+    // 1. Group countries by continent
+    const continentGroups = {};
+    countriesCentricData.forEach((d) => {
+      if (!continentGroups[d.continent]) {
+        continentGroups[d.continent] = [];
+      }
+      continentGroups[d.continent].push(d);
+    });
+
+    // 2. Calculate total moves per continent and sort continents descending
+    const sortedContinents = Object.entries(continentGroups)
+      .map(([continent, countries]) => ({
+        continent,
+        countries,
+        totalMoves: countries.reduce(
+          (sum, c) => sum + c.movesNewFirmCountry,
+          0,
+        ),
+      }))
+      .sort((a, b) => b.totalMoves - a.totalMoves);
+
+    // 3. Sort countries within each continent by moves descending
+    sortedContinents.forEach((group) => {
+      group.countries.sort(
+        (a, b) => b.movesNewFirmCountry - a.movesNewFirmCountry,
+      );
+    });
+
+    // 4. Calculate diamond widths for spacing
+    const countryDiamondWidth = (moves) =>
+      numberMovesScale(moves) * Math.sqrt(2);
+
+    // Total width of all diamonds
+    const countryGap = 16; // spacing between diamonds within a continent group
+    const totalDiamondWidth = countriesCentricData.reduce(
+      (sum, d) => sum + countryDiamondWidth(d.movesNewFirmCountry),
+      0,
+    );
+    const totalIntraGaps = sortedContinents.reduce(
+      (sum, g) => sum + Math.max(0, g.countries.length - 1) * countryGap,
+      0,
+    );
+
+    // Spacing between continent groups
+    const numGaps = sortedContinents.length - 1;
+    const continentGap =
+      numGaps > 0
+        ? Math.max(
+            20,
+            (innerWidth - totalDiamondWidth - totalIntraGaps) / (numGaps + 2),
+          )
+        : 0;
+
+    // Total width including gaps
+    const totalLayoutWidth =
+      totalDiamondWidth + totalIntraGaps + numGaps * continentGap;
+    let cursorX = (innerWidth - totalLayoutWidth) / 2;
+
+    // 5. Assign positions
+    sortedContinents.forEach((group, gi) => {
+      group.countries.forEach((d, ci) => {
+        const w = countryDiamondWidth(d.movesNewFirmCountry);
+        countryPositions[d.country] = {
+          x: cursorX + w / 2,
+          y: height1 + height2,
+        };
+        cursorX += w;
+        if (ci < group.countries.length - 1) {
+          cursorX += countryGap;
+        }
+      });
+      if (gi < sortedContinents.length - 1) {
+        cursorX += continentGap;
+      }
+    });
+  }
+
+  // Sort firms by barycenter (weighted average x of connected countries) to minimize line crossings
+  const sortedFirmsData = [...firmsData];
+  if (countriesData && Object.keys(countryPositions).length > 0) {
+    const firmBarycenter = {};
+    sortedFirmsData.forEach((firm) => {
+      const connections = countriesData.filter((d) => d.newFirm === firm.newFirm);
+      if (connections.length > 0) {
+        const weightedSum = connections.reduce((sum, d) => {
+          const pos = countryPositions[d.country];
+          return sum + (pos ? pos.x * d.movesNewFirmCountry : 0);
+        }, 0);
+        const totalWeight = connections.reduce((sum, d) => sum + d.movesNewFirmCountry, 0);
+        firmBarycenter[firm.newFirm] = totalWeight > 0 ? weightedSum / totalWeight : 0;
+      } else {
+        firmBarycenter[firm.newFirm] = 0;
+      }
+    });
+    sortedFirmsData.sort((a, b) => firmBarycenter[a.newFirm] - firmBarycenter[b.newFirm]);
+  }
+
   // compute per-firm diamond widths and cumulative x positions (tightly packed, centered)
-  const firmWidths = firmsData.map((d) => {
+  const firmWidths = sortedFirmsData.map((d) => {
     const size = numberMovesScale(d.totalMoves);
     return size * Math.sqrt(2); // rotated square width
   });
@@ -126,21 +226,10 @@ export function Vis2() {
   // build a map from firm name to its center-x position
   const firmCenterX = {};
   let cumX = groupStartX;
-  firmsData.forEach((d, i) => {
+  sortedFirmsData.forEach((d, i) => {
     firmCenterX[d.newFirm] = cumX + firmWidths[i] / 2;
     cumX += firmWidths[i];
   });
-
-  // pre-calculate country positions
-  const countryPositions = {};
-  if (countriesCentricData) {
-    countriesCentricData.forEach((d) => {
-      countryPositions[d.country] = {
-        x: Math.random() * innerWidth,
-        y: height1 + height2,
-      };
-    });
-  }
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis2?.title || "Title for Vis 2"}</p>
@@ -204,7 +293,7 @@ export function Vis2() {
           </g>
 
           <g id="new-firms-group">
-            ${firmsData.map((d) => {
+            ${sortedFirmsData.map((d) => {
               const x = firmCenterX[d.newFirm];
               const y = height1;
 

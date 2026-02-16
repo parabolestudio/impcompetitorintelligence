@@ -436,14 +436,15 @@ export function Vis1() {
                 .closest(".vis-content")
                 .getBoundingClientRect();
 
-              const tooltipX =
-                newCompanyScaleX(d.name) + tooltipWidth - rect.left - 10;
+              const mouseX = event.clientX - rect.left;
 
-              // If the tooltip would overflow to the right, position it to the left of the company instead
-              const adjustedTooltipX =
-                tooltipX + tooltipWidth > rect.width
-                  ? newCompanyScaleX(d.name) - rect.left - tooltipWidth / 2 + 40
-                  : tooltipX;
+              // If the tooltip would overflow to the right, position it to the left of the cursor
+              // Otherwise position it to the right (the +20 offset is added in the Tooltip component)
+              let adjustedTooltipX = mouseX;
+              if (mouseX + tooltipWidth + 20 > rect.width) {
+                adjustedTooltipX = mouseX - tooltipWidth - 60;
+              }
+
               setHoveredObject({
                 hoverType: "newCompany",
                 newCompany: d.name,

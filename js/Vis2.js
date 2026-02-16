@@ -71,66 +71,21 @@ export function Vis2() {
 
   const config = window.customChartsConfig || {};
 
-  // const uniqueCompanyMoves = Array.from(
-  //   new Set(newCompanyData.map((d) => d.totalMoves)),
-  // ).sort((a, b) => a - b);
-  // const marginSection3 = {
-  //   top: 180,
-  //   left: 50,
-  //   bottom: 110,
-  //   right: 50,
-  // };
-  // const newCompanyScaleY = d3
-  //   .scalePoint()
-  //   .domain(uniqueCompanyMoves)
-  //   .range([
-  //     height1 + height2 + marginSection3.top,
-  //     height1 + height2 + height3 - marginSection3.bottom,
-  //   ]);
-  // // Pyramid style: highest totalMoves in center, decreasing outward
-  // // Pyramid ordering for new companies (x-direction):
-  // // Sorts new companies by totalMoves descending
-  // // Places the company with the most moves at the center index
-  // // Alternates placing the next-highest companies to the right and left of center
-  // // Result: a pyramid/funnel shape where companies with the most connections sit in the middle-bottom and companies with fewer connections fan out to the sides
-  // const sortedByMovesDesc = [...newCompanyData].sort(
-  //   (a, b) => b.totalMoves - a.totalMoves,
-  // );
-  // const nNew = sortedByMovesDesc.length;
-  // const sortedNewCompanyData = new Array(nNew);
-  // const mid = Math.floor(nNew / 2);
-  // sortedNewCompanyData[mid] = sortedByMovesDesc[0];
-  // let pLeft = mid - 1;
-  // let pRight = mid + 1;
-  // for (let i = 1; i < nNew; i++) {
-  //   if (i % 2 === 1 && pRight < nNew) {
-  //     sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
-  //     pRight++;
-  //   } else if (pLeft >= 0) {
-  //     sortedNewCompanyData[pLeft] = sortedByMovesDesc[i];
-  //     pLeft--;
-  //   } else {
-  //     sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
-  //     pRight++;
-  //   }
-  // }
+  // compute per-firm diamond widths and cumulative x positions (tightly packed, centered)
+  const firmWidths = firmsData.map((d) => {
+    const size = numberMovesScale(d.totalMoves);
+    return size * Math.sqrt(2); // rotated square width
+  });
+  const totalGroupWidth = firmWidths.reduce((sum, w) => sum + w, 0);
+  const groupStartX = (innerWidth - totalGroupWidth) / 2;
 
-  // const newCompanyScaleX = d3
-  //   .scalePoint()
-  //   .domain(Array.from(sortedNewCompanyData.map((d) => d.name)))
-  //   .range([marginSection3.left, innerWidth - marginSection3.right]);
-
-  // get unique new firms
-  const uniqueNewFirms = Array.from(new Set(firmsData.map((d) => d.newFirm)));
-
-  const marginSection1 = {
-    left: 90,
-    right: 90,
-  };
-  const newFirmScaleX = d3
-    .scalePoint()
-    .domain(uniqueNewFirms)
-    .range([marginSection1.left, innerWidth - marginSection1.right]);
+  // build a map from firm name to its center-x position
+  const firmCenterX = {};
+  let cumX = groupStartX;
+  firmsData.forEach((d, i) => {
+    firmCenterX[d.newFirm] = cumX + firmWidths[i] / 2;
+    cumX += firmWidths[i];
+  });
 
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis2?.title || "Title for Vis 2"}</p>
@@ -170,13 +125,13 @@ export function Vis2() {
           </g>
 
           ${firmsData.map((d) => {
-            const x = newFirmScaleX(d.newFirm);
+            const x = firmCenterX[d.newFirm];
             const y = height1;
 
             return html`
               <g transform="translate(${x}, ${y})" class="new-company-group">
                 <${CompanyWithDiamondRotated}
-                  name=${d.name}
+                  name=${d.newFirm}
                   number=${d.totalMoves}
                 />
               </g>

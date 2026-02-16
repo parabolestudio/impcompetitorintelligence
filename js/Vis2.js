@@ -4,7 +4,7 @@ import Fallback from "./Fallback.js";
 import { numberMovesScale, colorMapping, REPO_BASE_URL } from "./helpers.js";
 
 export function Vis2() {
-  const [movesData, setMovesData] = useState(null);
+  const [firmsData, setFirmsData] = useState(null);
   const [newCompanyData, setNewCompanyData] = useState(null);
 
   const MOBILE_THRESHOLD = 1200;
@@ -30,51 +30,24 @@ export function Vis2() {
   useEffect(() => {
     // Fetch data when the component mounts
     d3.csv(
-      `${REPO_BASE_URL}/data/data_vis1_transformed.csv`,
-      // `./data/data_vis1_transformed.csv`,
-    ).then((transformedData) => {
-      transformedData.forEach((d) => {
-        d["formerFirm"] = d["Former firm"];
+      // `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
+      `./data/data_vis2_firms.csv`,
+    ).then((firmsData) => {
+      firmsData.forEach((d) => {
         d["newFirm"] = d["New firm"];
-        d["numberMoves"] = +d["Number of Moves"];
-        d["teamInvolved"] = d["Teams (IMP defined)"]
-          .split(";")
-          .map((s) => s.trim());
-        d["positionsWithSeniority"] = d["Seniorities (IMP defined)"]
-          .split(";")
-          .map((s) => s.trim());
-        d["jobTitles"] = d["New job titles"].split(";").map((s) => s.trim());
+        d["totalMoves"] = +d["Total moves"];
       });
 
-      // sort by number of moves
-      setMovesData(transformedData);
-
-      // Extract unique new firms for the lower section
-      const uniqueNewFirms = Array.from(
-        new Set(transformedData.map((d) => d.newFirm)),
-      );
-      // for each new firm, find the total number of moves to that firm
-      const newCompanyData = uniqueNewFirms.map((newFirm) => {
-        const totalMoves = transformedData
-          .filter((d) => d.newFirm === newFirm)
-          .reduce((sum, d) => sum + d.numberMoves, 0);
-
-        return {
-          name: newFirm,
-          totalMoves,
-        };
-      });
-      setNewCompanyData(newCompanyData);
+      setFirmsData(firmsData);
     });
   }, []);
 
-  if (!movesData) {
+  if (!firmsData) {
     return html`<div>Loading data...</div>`;
   }
 
   console.log("Rendering vis 2 with ", {
-    movesData,
-    newCompanyData,
+    firmsData,
   });
 
   // dimensions
@@ -98,59 +71,57 @@ export function Vis2() {
 
   const config = window.customChartsConfig || {};
 
-  const uniqueCompanyMoves = Array.from(
-    new Set(newCompanyData.map((d) => d.totalMoves)),
-  ).sort((a, b) => a - b);
-  const marginSection3 = {
-    top: 180,
-    left: 50,
-    bottom: 110,
-    right: 50,
-  };
-  const newCompanyScaleY = d3
-    .scalePoint()
-    .domain(uniqueCompanyMoves)
-    .range([
-      height1 + height2 + marginSection3.top,
-      height1 + height2 + height3 - marginSection3.bottom,
-    ]);
-  // Pyramid style: highest totalMoves in center, decreasing outward
-  // Pyramid ordering for new companies (x-direction):
-  // Sorts new companies by totalMoves descending
-  // Places the company with the most moves at the center index
-  // Alternates placing the next-highest companies to the right and left of center
-  // Result: a pyramid/funnel shape where companies with the most connections sit in the middle-bottom and companies with fewer connections fan out to the sides
-  const sortedByMovesDesc = [...newCompanyData].sort(
-    (a, b) => b.totalMoves - a.totalMoves,
-  );
-  const nNew = sortedByMovesDesc.length;
-  const sortedNewCompanyData = new Array(nNew);
-  const mid = Math.floor(nNew / 2);
-  sortedNewCompanyData[mid] = sortedByMovesDesc[0];
-  let pLeft = mid - 1;
-  let pRight = mid + 1;
-  for (let i = 1; i < nNew; i++) {
-    if (i % 2 === 1 && pRight < nNew) {
-      sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
-      pRight++;
-    } else if (pLeft >= 0) {
-      sortedNewCompanyData[pLeft] = sortedByMovesDesc[i];
-      pLeft--;
-    } else {
-      sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
-      pRight++;
-    }
-  }
+  // const uniqueCompanyMoves = Array.from(
+  //   new Set(newCompanyData.map((d) => d.totalMoves)),
+  // ).sort((a, b) => a - b);
+  // const marginSection3 = {
+  //   top: 180,
+  //   left: 50,
+  //   bottom: 110,
+  //   right: 50,
+  // };
+  // const newCompanyScaleY = d3
+  //   .scalePoint()
+  //   .domain(uniqueCompanyMoves)
+  //   .range([
+  //     height1 + height2 + marginSection3.top,
+  //     height1 + height2 + height3 - marginSection3.bottom,
+  //   ]);
+  // // Pyramid style: highest totalMoves in center, decreasing outward
+  // // Pyramid ordering for new companies (x-direction):
+  // // Sorts new companies by totalMoves descending
+  // // Places the company with the most moves at the center index
+  // // Alternates placing the next-highest companies to the right and left of center
+  // // Result: a pyramid/funnel shape where companies with the most connections sit in the middle-bottom and companies with fewer connections fan out to the sides
+  // const sortedByMovesDesc = [...newCompanyData].sort(
+  //   (a, b) => b.totalMoves - a.totalMoves,
+  // );
+  // const nNew = sortedByMovesDesc.length;
+  // const sortedNewCompanyData = new Array(nNew);
+  // const mid = Math.floor(nNew / 2);
+  // sortedNewCompanyData[mid] = sortedByMovesDesc[0];
+  // let pLeft = mid - 1;
+  // let pRight = mid + 1;
+  // for (let i = 1; i < nNew; i++) {
+  //   if (i % 2 === 1 && pRight < nNew) {
+  //     sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
+  //     pRight++;
+  //   } else if (pLeft >= 0) {
+  //     sortedNewCompanyData[pLeft] = sortedByMovesDesc[i];
+  //     pLeft--;
+  //   } else {
+  //     sortedNewCompanyData[pRight] = sortedByMovesDesc[i];
+  //     pRight++;
+  //   }
+  // }
 
-  const newCompanyScaleX = d3
-    .scalePoint()
-    .domain(Array.from(sortedNewCompanyData.map((d) => d.name)))
-    .range([marginSection3.left, innerWidth - marginSection3.right]);
+  // const newCompanyScaleX = d3
+  //   .scalePoint()
+  //   .domain(Array.from(sortedNewCompanyData.map((d) => d.name)))
+  //   .range([marginSection3.left, innerWidth - marginSection3.right]);
 
-  // get unique former firms
-  const uniqueFormerFirms = Array.from(
-    new Set(movesData.map((d) => d.formerFirm)),
-  );
+  // get unique new firms
+  const uniqueNewFirms = Array.from(new Set(firmsData.map((d) => d.newFirm)));
 
   const marginSection1 = {
     left: 90,
@@ -158,7 +129,7 @@ export function Vis2() {
   };
   const newFirmScaleX = d3
     .scalePoint()
-    .domain(uniqueFormerFirms)
+    .domain(uniqueNewFirms)
     .range([marginSection1.left, innerWidth - marginSection1.right]);
 
   return html`<div class="vis-container">
@@ -187,19 +158,19 @@ export function Vis2() {
             <text class="axis-text" y="${height1 - 5}">New firms</text>
             <line
               x1="0"
-              y1="${height1 + height2}"
+              y1="${height1 + height2 + height3}"
               x2="${width}"
-              y2="${height1 + height2}"
+              y2="${height1 + height2 + height3}"
               stroke="var(--color-vis-neutral-grey2)"
             />
-            <text class="axis-text" y="${height1 + height2 - 22}">
+            <text class="axis-text" y="${height1 + height2 + height3 - 22}">
               <tspan>Country and city</tspan>
               <tspan x="0" dy="16">after move</tspan>
             </text>
           </g>
 
-          ${sortedNewCompanyData.map((d) => {
-            const x = newCompanyScaleX(d.name);
+          ${firmsData.map((d) => {
+            const x = newFirmScaleX(d.newFirm);
             const y = height1;
 
             return html`

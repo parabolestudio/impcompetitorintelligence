@@ -40,7 +40,18 @@ export function CompanyWithDiamondExtended({
 }
 
 export function CompanyWithDiamondRotated({ name, number }) {
+  const size = numberMovesScale(number);
+  const topCornerY = (size * Math.sqrt(2)) / 2;
+
   return html`<g>
     <${Diamond} number=${number} includeFillColor=${false} />
+    <text
+      class="company-name-rotated"
+      transform="translate(0, ${-topCornerY}) rotate(-45)"
+      dx="2"
+      dy="10"
+      text-anchor="start"
+      >${name}</text
+    >
   </g>`;
 }

@@ -21,11 +21,26 @@ export function Company({ name, number, hoverFunction }) {
   </g>`;
 }
 
-export function CompanyWithDiamond({ name, number, isFaded, hoverFunction }) {
+export function CompanyWithDiamondExtended({
+  name,
+  number,
+  isFaded,
+  hoverFunction,
+}) {
   return html`<g
     style="opacity: ${isFaded ? 0.2 : 1}; transition: opacity 0.3s;"
   >
-    <${Diamond} number=${number} hoverFunction=${hoverFunction} />
+    <${Diamond}
+      number=${number}
+      includeFillColor=${true}
+      hoverFunction=${hoverFunction}
+    />
     <${Company} name=${name} number=${number} hoverFunction=${hoverFunction} />
+  </g>`;
+}
+
+export function CompanyWithDiamondRotated({ name, number }) {
+  return html`<g>
+    <${Diamond} number=${number} includeFillColor=${false} />
   </g>`;
 }

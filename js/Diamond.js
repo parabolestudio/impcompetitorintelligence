@@ -1,7 +1,7 @@
 import { html } from "./preact-htm.js";
 import { colorMapping, numberMovesScale } from "./helpers.js";
 
-export default function Diamond({ number, hoverFunction }) {
+export default function Diamond({ number, includeFillColor, hoverFunction }) {
   const size = numberMovesScale(number);
 
   return html`<g class="diamond" onmouseenter=${hoverFunction}>
@@ -12,9 +12,9 @@ export default function Diamond({ number, hoverFunction }) {
       y="${-size / 2}"
       transform="rotate(45)"
       class="diamond-rect"
-      fill="${colorMapping[number]
+      fill="${includeFillColor && colorMapping[number]
         ? `var(--color-vis-${colorMapping[number]})`
-        : "grey"}"
+        : "var(--color-vis-main-dark-blue)"}"
     />
     <text
       x="0"

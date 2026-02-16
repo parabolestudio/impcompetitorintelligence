@@ -1,5 +1,5 @@
 import { html, useEffect, useState } from "./preact-htm.js";
-import { CompanyWithDiamond } from "./Company.js";
+import { CompanyWithDiamondExtended } from "./Company.js";
 import { Tooltip } from "./Tooltip.js";
 import Fallback from "./Fallback.js";
 import {
@@ -480,7 +480,7 @@ export function Vis1() {
                 class="new-company-group"
                 onmouseleave=${() => setHoveredObject(null)}
               >
-                <${CompanyWithDiamond}
+                <${CompanyWithDiamondExtended}
                   name=${d.name}
                   number=${d.totalMoves}
                   isFaded=${isFaded}

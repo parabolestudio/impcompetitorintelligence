@@ -1,7 +1,11 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamondRotated } from "./Company.js";
 import Fallback from "./Fallback.js";
-import { numberMovesScale, REPO_BASE_URL } from "./helpers.js";
+import {
+  numberMovesScale,
+  colorMappingByContinent,
+  REPO_BASE_URL,
+} from "./helpers.js";
 import Diamond from "./Diamond.js";
 
 export function Vis2() {
@@ -127,6 +131,17 @@ export function Vis2() {
     cumX += firmWidths[i];
   });
 
+  // pre-calculate country positions
+  const countryPositions = {};
+  if (countriesCentricData) {
+    countriesCentricData.forEach((d) => {
+      countryPositions[d.country] = {
+        x: Math.random() * innerWidth,
+        y: height1 + height2,
+      };
+    });
+  }
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis2?.title || "Title for Vis 2"}</p>
     <p class="vis-subtitle">
@@ -163,6 +178,30 @@ export function Vis2() {
               <tspan x="0" dy="16">after move</tspan>
             </text>
           </g>
+          <g id="lines-new-firms-to-countries-group">
+            ${countriesData && countriesData.length > 0
+              ? countriesData.map((d) => {
+                  const firmX = firmCenterX[d.newFirm];
+                  const firmY = height1;
+
+                  const pos = countryPositions[d.country];
+                  const countryX = pos ? pos.x : Math.random() * innerWidth;
+                  const countryY = pos ? pos.y : height1 + height2;
+
+                  return html`
+                    <line
+                      x1="${firmX}"
+                      y1="${firmY}"
+                      x2="${countryX}"
+                      y2="${countryY}"
+                      stroke="var(--color-vis-${colorMappingByContinent[
+                        d.continent
+                      ] || "neutral-grey2"})"
+                    />
+                  `;
+                })
+              : null}
+          </g>
 
           <g id="new-firms-group">
             ${firmsData.map((d) => {
@@ -183,9 +222,9 @@ export function Vis2() {
           <g id="countries-group">
             ${countriesCentricData && countriesCentricData.length > 0
               ? countriesCentricData.map((d) => {
-                  // random placement along x axis within innerWidth for now
-                  const x = Math.random() * innerWidth;
-                  const y = height1 + height2;
+                  const pos = countryPositions[d.country];
+                  const x = pos ? pos.x : 0;
+                  const y = pos ? pos.y : height1 + height2;
 
                   return html`
                     <g

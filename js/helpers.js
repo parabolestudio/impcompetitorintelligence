@@ -33,7 +33,11 @@ export const colorMappingByNumber = {
 };
 // TODO: make domain and range dynamic based on data
 export function numberMovesScale(number) {
-  const scaleSize = d3.scaleLinear().domain([3, 16]).range([17, 38]);
+  const scaleSize = d3
+    .scaleLinear()
+    .domain([3, 16])
+    .range([17, 38])
+    .clamp(true);
   const size = scaleSize(number);
   return size;
 }

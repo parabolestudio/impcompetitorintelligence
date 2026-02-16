@@ -33,7 +33,7 @@
     }
     .diamond-text {
       fill: white;
-      font-size: 16px;
+      /* font-size: 16px;  --> set dynamically via JS */
       font-weight: 700;
       font-family: "Archivo Narrow", Inter, sans-serif;
     }

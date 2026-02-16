@@ -2,10 +2,12 @@ import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamondRotated } from "./Company.js";
 import Fallback from "./Fallback.js";
 import { numberMovesScale, colorMapping, REPO_BASE_URL } from "./helpers.js";
+import Diamond from "./Diamond.js";
 
 export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);
-  const [newCompanyData, setNewCompanyData] = useState(null);
+  const [countriesData, setCountriesData] = useState(null);
+  const [countriesCentricData, setCountriesCentricData] = useState(null);
 
   const MOBILE_THRESHOLD = 1200;
   const [showFallback, setShowFallback] = useState(
@@ -29,16 +31,49 @@ export function Vis2() {
 
   useEffect(() => {
     // Fetch data when the component mounts
-    d3.csv(
-      // `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
-      `./data/data_vis2_firms.csv`,
-    ).then((firmsData) => {
-      firmsData.forEach((d) => {
+    Promise.all([
+      d3.csv(
+        // `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
+        `./data/data_vis2_firms.csv`,
+      ),
+      d3.csv(
+        // `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
+        `./data/data_vis2_countries.csv`,
+      ),
+    ]).then(([firmsDataRaw, countriesDataRaw]) => {
+      firmsDataRaw.forEach((d) => {
         d["newFirm"] = d["New firm"];
         d["totalMoves"] = +d["Total moves"];
       });
+      setFirmsData(firmsDataRaw);
 
-      setFirmsData(firmsData);
+      countriesDataRaw.forEach((d) => {
+        d["newFirm"] = d["New firm"];
+        d["country"] = d["Country"];
+        d["cities"] = d["Cities"]
+          ? d["Cities"].split(";").map((s) => s.trim())
+          : [];
+        d["movesNewFirmCountry"] = +d["Moves"];
+      });
+      setCountriesData(countriesDataRaw);
+
+      // get unique list of countries
+      const uniqueCountries = Array.from(
+        new Set(countriesDataRaw.map((d) => d["Country"])),
+      ).filter((c) => c && c.trim() !== "");
+      console.log("Unique countries in data:", uniqueCountries);
+
+      const countryCentricData = uniqueCountries.map((country) => {
+        const moves = countriesDataRaw
+          .filter((d) => d["country"] === country)
+          .reduce((sum, d) => sum + d["movesNewFirmCountry"], 0);
+        return {
+          country,
+          movesNewFirmCountry: moves,
+        };
+      });
+      console.log("Country-centric aggregated data:", countryCentricData);
+      setCountriesCentricData(countryCentricData);
     });
   }, []);
 
@@ -48,6 +83,8 @@ export function Vis2() {
 
   console.log("Rendering vis 2 with ", {
     firmsData,
+    countriesData,
+    countriesCentricData,
   });
 
   // dimensions
@@ -124,19 +161,42 @@ export function Vis2() {
             </text>
           </g>
 
-          ${firmsData.map((d) => {
-            const x = firmCenterX[d.newFirm];
-            const y = height1;
+          <g id="new-firms-group">
+            ${firmsData.map((d) => {
+              const x = firmCenterX[d.newFirm];
+              const y = height1;
 
-            return html`
-              <g transform="translate(${x}, ${y})" class="new-company-group">
-                <${CompanyWithDiamondRotated}
-                  name=${d.newFirm}
-                  number=${d.totalMoves}
-                />
-              </g>
-            `;
-          })}
+              return html`
+                <g transform="translate(${x}, ${y})" class="new-company-group">
+                  <${CompanyWithDiamondRotated}
+                    name=${d.newFirm}
+                    number=${d.totalMoves}
+                  />
+                </g>
+              `;
+            })}
+          </g>
+          <g id="countries-group">
+            ${countriesCentricData && countriesCentricData.length > 0
+              ? countriesCentricData.map((d) => {
+                  // random placement along x axis within innerWidth for now
+                  const x = Math.random() * innerWidth;
+                  const y = height1 + height2;
+
+                  return html`
+                    <g
+                      transform="translate(${x}, ${y})"
+                      class="new-country-group ${d.country}"
+                    >
+                      <${Diamond}
+                        number=${d.movesNewFirmCountry}
+                        includeFillColor=${false}
+                      />
+                    </g>
+                  `;
+                })
+              : null}
+          </g>
         </g>
       </svg>
     </div>

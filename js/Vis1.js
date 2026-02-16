@@ -4,7 +4,7 @@ import { Tooltip } from "./Tooltip.js";
 import Fallback from "./Fallback.js";
 import {
   numberMovesScale,
-  colorMapping,
+  colorMappingByNumber,
   logoMapping,
   REPO_BASE_URL,
 } from "./helpers.js";
@@ -236,8 +236,8 @@ export function Vis1() {
           numberMovesScale(newCompany.totalMoves) / 2 -
           4,
       },
-      color: `var(--color-vis-${colorMapping[newCompany.totalMoves]})`,
-      colorKey: colorMapping[newCompany.totalMoves],
+      color: `var(--color-vis-${colorMappingByNumber[newCompany.totalMoves]})`,
+      colorKey: colorMappingByNumber[newCompany.totalMoves],
     };
   });
 
@@ -483,6 +483,7 @@ export function Vis1() {
                 <${CompanyWithDiamondExtended}
                   name=${d.name}
                   number=${d.totalMoves}
+                  color="byNumber"
                   isFaded=${isFaded}
                   hoverFunction=${hoverFunction}
                 />

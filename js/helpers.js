@@ -10,7 +10,7 @@ export const REPO_BASE_URL =
 // 5-6 -> blue
 // 4 -> dark grey
 // 3 -> light grey
-export const colorMapping = {
+export const colorMappingByNumber = {
   1: "neutral-grey2",
   2: "neutral-grey2",
   3: "neutral-grey2",
@@ -31,13 +31,21 @@ export const colorMapping = {
   18: "main-dark-blue",
   19: "main-dark-blue",
 };
-
 // TODO: make domain and range dynamic based on data
 export function numberMovesScale(number) {
   const scaleSize = d3.scaleLinear().domain([3, 16]).range([17, 38]);
   const size = scaleSize(number);
   return size;
 }
+
+export const colorMappingByContinent = {
+  "North America": "secondary-pink",
+  Europe: "secondary-teal",
+  Asia: "secondary-green",
+  "South America": "secondary-blue",
+  Africa: "secondary-purple",
+  Oceania: "secondary-orange",
+};
 
 export const logoMapping = {
   "Apollo Global Management": "Apollo_Global_Management.png",

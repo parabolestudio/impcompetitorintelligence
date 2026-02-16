@@ -24,6 +24,7 @@ export function Company({ name, number, hoverFunction }) {
 export function CompanyWithDiamondExtended({
   name,
   number,
+  color,
   isFaded,
   hoverFunction,
 }) {
@@ -32,19 +33,19 @@ export function CompanyWithDiamondExtended({
   >
     <${Diamond}
       number=${number}
-      includeFillColor=${true}
+      color=${color}
       hoverFunction=${hoverFunction}
     />
     <${Company} name=${name} number=${number} hoverFunction=${hoverFunction} />
   </g>`;
 }
 
-export function CompanyWithDiamondRotated({ name, number }) {
+export function CompanyWithDiamondRotated({ name, number, color }) {
   const size = numberMovesScale(number);
   const topCornerY = (size * Math.sqrt(2)) / 2;
 
   return html`<g>
-    <${Diamond} number=${number} includeFillColor=${false} />
+    <${Diamond} number=${number} color=${color} />
     <text
       class="company-name-rotated"
       transform="translate(0, ${-topCornerY}) rotate(-45)"

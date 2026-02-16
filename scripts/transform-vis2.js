@@ -19,6 +19,23 @@ const outputCountriesPath = path.join(
 // Minimum total moves a "New firm" must have to be included in the output
 const MIN_MOVES_PER_NEW_FIRM = 3;
 
+// Country → Continent mapping (geographic)
+const COUNTRY_TO_CONTINENT = {
+  Australia: "Oceania",
+  Belgium: "Europe",
+  France: "Europe",
+  Germany: "Europe",
+  India: "Asia",
+  Luxembourg: "Europe",
+  Netherlands: "Europe",
+  Singapore: "Asia",
+  Sweden: "Europe",
+  Switzerland: "Europe",
+  UAE: "Asia",
+  UK: "Europe",
+  USA: "North America",
+};
+
 // CSV-aware row parser (handles quoted fields with commas)
 function parseCSVRow(row) {
   const fields = [];
@@ -139,7 +156,7 @@ console.log(
 );
 
 // --- CSV 2: Per firm per country breakdown ---
-const countryLines = ["New firm,Country,Moves,Cities"];
+const countryLines = ["New firm,Country,Continent,Moves,Cities"];
 
 const sortedCountries = [...firmCountries.entries()].sort((a, b) => {
   const [firmA, countryA] = a[0].split("|||");
@@ -151,8 +168,9 @@ let includedCountryCount = 0;
 for (const [key, group] of sortedCountries) {
   const [firm, country] = key.split("|||");
   if ((firms.get(firm)?.count || 0) < MIN_MOVES_PER_NEW_FIRM) continue;
+  const continent = COUNTRY_TO_CONTINENT[country.trim()] || "Unknown";
   countryLines.push(
-    `${quoteField(firm)},${quoteField(country)},${group.count},${formatArray(group.cities)}`,
+    `${quoteField(firm)},${quoteField(country)},${continent},${group.count},${formatArray(group.cities)}`,
   );
   includedCountryCount++;
 }

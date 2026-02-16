@@ -1,8 +1,25 @@
 import { html } from "./preact-htm.js";
-import { colorMapping, numberMovesScale } from "./helpers.js";
+import {
+  colorMappingByNumber,
+  colorMappingByContinent,
+  numberMovesScale,
+} from "./helpers.js";
 
-export default function Diamond({ number, includeFillColor, hoverFunction }) {
+export default function Diamond({
+  number,
+  color,
+  colorContinent,
+  hoverFunction,
+}) {
   const size = numberMovesScale(number);
+
+  // color of type "byNumber", "byContinent" or null
+  let fillColor = "var(--color-vis-main-dark-blue)"; // default color if no mapping is applied
+  if (color === "byNumber") {
+    fillColor = `var(--color-vis-${colorMappingByNumber[number] || "neutral-grey2"})`;
+  } else if (color === "byContinent" && colorContinent) {
+    fillColor = `var(--color-vis-${colorMappingByContinent[colorContinent] || "neutral-grey2"})`;
+  }
 
   const fontSizeScale = d3
     .scaleLinear()
@@ -19,9 +36,7 @@ export default function Diamond({ number, includeFillColor, hoverFunction }) {
       y="${-size / 2}"
       transform="rotate(45)"
       class="diamond-rect"
-      fill="${includeFillColor && colorMapping[number]
-        ? `var(--color-vis-${colorMapping[number]})`
-        : "var(--color-vis-main-dark-blue)"}"
+      fill="${fillColor}"
     />
     <text
       x="0"

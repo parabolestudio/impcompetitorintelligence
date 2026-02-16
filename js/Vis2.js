@@ -1,7 +1,7 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamondRotated } from "./Company.js";
 import Fallback from "./Fallback.js";
-import { numberMovesScale, colorMapping, REPO_BASE_URL } from "./helpers.js";
+import { numberMovesScale, REPO_BASE_URL } from "./helpers.js";
 import Diamond from "./Diamond.js";
 
 export function Vis2() {
@@ -50,6 +50,7 @@ export function Vis2() {
       countriesDataRaw.forEach((d) => {
         d["newFirm"] = d["New firm"];
         d["country"] = d["Country"];
+        d["continent"] = d["Continent"];
         d["cities"] = d["Cities"]
           ? d["Cities"].split(";").map((s) => s.trim())
           : [];
@@ -61,7 +62,6 @@ export function Vis2() {
       const uniqueCountries = Array.from(
         new Set(countriesDataRaw.map((d) => d["Country"])),
       ).filter((c) => c && c.trim() !== "");
-      console.log("Unique countries in data:", uniqueCountries);
 
       const countryCentricData = uniqueCountries.map((country) => {
         const moves = countriesDataRaw
@@ -70,9 +70,12 @@ export function Vis2() {
         return {
           country,
           movesNewFirmCountry: moves,
+          continent:
+            countriesDataRaw.find((d) => d["Country"] === country)?.[
+              "Continent"
+            ] || "Unknown",
         };
       });
-      console.log("Country-centric aggregated data:", countryCentricData);
       setCountriesCentricData(countryCentricData);
     });
   }, []);
@@ -171,6 +174,7 @@ export function Vis2() {
                   <${CompanyWithDiamondRotated}
                     name=${d.newFirm}
                     number=${d.totalMoves}
+                    color="${null}"
                   />
                 </g>
               `;
@@ -190,7 +194,8 @@ export function Vis2() {
                     >
                       <${Diamond}
                         number=${d.movesNewFirmCountry}
-                        includeFillColor=${false}
+                        color="byContinent"
+                        colorContinent=${d.continent}
                       />
                     </g>
                   `;

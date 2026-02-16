@@ -181,8 +181,9 @@ export function Vis2() {
       group.countries.forEach((d, ci) => {
         const w = countryDiamondWidth(d.movesNewFirmCountry);
         countryPositions[d.country] = {
-          x: cursorX + w / 2,
-          y: height1 + height2,
+          centerX: cursorX + w / 2,
+          centerY: height1 + height2,
+          topY: height1 + height2 - w / 2,
         };
         cursorX += w;
         if (ci < group.countries.length - 1) {
@@ -200,19 +201,27 @@ export function Vis2() {
   if (countriesData && Object.keys(countryPositions).length > 0) {
     const firmBarycenter = {};
     sortedFirmsData.forEach((firm) => {
-      const connections = countriesData.filter((d) => d.newFirm === firm.newFirm);
+      const connections = countriesData.filter(
+        (d) => d.newFirm === firm.newFirm,
+      );
       if (connections.length > 0) {
         const weightedSum = connections.reduce((sum, d) => {
           const pos = countryPositions[d.country];
           return sum + (pos ? pos.x * d.movesNewFirmCountry : 0);
         }, 0);
-        const totalWeight = connections.reduce((sum, d) => sum + d.movesNewFirmCountry, 0);
-        firmBarycenter[firm.newFirm] = totalWeight > 0 ? weightedSum / totalWeight : 0;
+        const totalWeight = connections.reduce(
+          (sum, d) => sum + d.movesNewFirmCountry,
+          0,
+        );
+        firmBarycenter[firm.newFirm] =
+          totalWeight > 0 ? weightedSum / totalWeight : 0;
       } else {
         firmBarycenter[firm.newFirm] = 0;
       }
     });
-    sortedFirmsData.sort((a, b) => firmBarycenter[a.newFirm] - firmBarycenter[b.newFirm]);
+    sortedFirmsData.sort(
+      (a, b) => firmBarycenter[a.newFirm] - firmBarycenter[b.newFirm],
+    );
   }
 
   // compute per-firm diamond widths and cumulative x positions (tightly packed, centered)
@@ -229,6 +238,11 @@ export function Vis2() {
   sortedFirmsData.forEach((d, i) => {
     firmCenterX[d.newFirm] = cumX + firmWidths[i] / 2;
     cumX += firmWidths[i];
+  });
+  // build a map from firm name to its diamond size for quick lookup when drawing lines
+  const firmDiamondSize = {};
+  sortedFirmsData.forEach((d) => {
+    firmDiamondSize[d.newFirm] = numberMovesScale(d.totalMoves);
   });
 
   return html`<div class="vis-container">
@@ -270,19 +284,18 @@ export function Vis2() {
           <g id="lines-new-firms-to-countries-group">
             ${countriesData && countriesData.length > 0
               ? countriesData.map((d) => {
+                  console.log("Drawing line for ", d);
                   const firmX = firmCenterX[d.newFirm];
-                  const firmY = height1;
+                  const firmY = height1 + firmDiamondSize[d.newFirm] / 2; // start from bottom corner of diamond
 
                   const pos = countryPositions[d.country];
-                  const countryX = pos ? pos.x : Math.random() * innerWidth;
-                  const countryY = pos ? pos.y : height1 + height2;
 
                   return html`
                     <line
                       x1="${firmX}"
                       y1="${firmY}"
-                      x2="${countryX}"
-                      y2="${countryY}"
+                      x2="${pos.centerX}"
+                      y2="${pos.topY}"
                       stroke="var(--color-vis-${colorMappingByContinent[
                         d.continent
                       ] || "neutral-grey2"})"
@@ -312,12 +325,9 @@ export function Vis2() {
             ${countriesCentricData && countriesCentricData.length > 0
               ? countriesCentricData.map((d) => {
                   const pos = countryPositions[d.country];
-                  const x = pos ? pos.x : 0;
-                  const y = pos ? pos.y : height1 + height2;
-
                   return html`
                     <g
-                      transform="translate(${x}, ${y})"
+                      transform="translate(${pos.centerX}, ${pos.centerY})"
                       class="new-country-group ${d.country}"
                     >
                       <${Diamond}

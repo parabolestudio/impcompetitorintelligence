@@ -12,6 +12,7 @@ export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);
   const [countriesData, setCountriesData] = useState(null);
   const [countriesCentricData, setCountriesCentricData] = useState(null);
+  const [hoveredObject, setHoveredObject] = useState(null);
 
   const MOBILE_THRESHOLD = 1200;
   const [showFallback, setShowFallback] = useState(
@@ -21,7 +22,7 @@ export function Vis2() {
   // on resize, clear hovered object to prevent tooltip from getting stuck in wrong position and render fallback if width is below threshold
   useEffect(() => {
     function handleResize() {
-      setHoveredObject(null);
+      setHoveredObject ? setHoveredObject(null) : null;
       setShowFallback(window.innerWidth < MOBILE_THRESHOLD);
     }
     window.addEventListener("resize", handleResize);

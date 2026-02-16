@@ -5,22 +5,22 @@ export default function Fallback() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       // Optional: Show feedback to user
-      const button = document.querySelector('.fallback-button');
+      const button = document.querySelector(".fallback-button");
       if (button) {
         const originalText = button.textContent;
-        button.textContent = 'Copied!';
+        button.textContent = "Copied!";
         setTimeout(() => {
           button.textContent = originalText;
         }, 2000);
       }
     } catch (err) {
-      console.error('Failed to copy link:', err);
+      console.error("Failed to copy link:", err);
     }
   };
 
   return html`<div class="fallback">
     <img
-      src="assets/fallback_image.svg"
+      src="assets/fallback_image2.svg"
       alt="Fallback image"
       class="fallback-image"
     />

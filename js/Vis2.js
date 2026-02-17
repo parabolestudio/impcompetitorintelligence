@@ -15,6 +15,7 @@ export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);
   const [countriesData, setCountriesData] = useState(null);
   const [countriesCentricData, setCountriesCentricData] = useState(null);
+  const [cityMovesData, setCityMovesData] = useState(null);
   const [hoveredObject, setHoveredObject] = useState(null);
 
   const MOBILE_THRESHOLD = 1200;
@@ -48,7 +49,11 @@ export function Vis2() {
         `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
         // `./data/data_vis2_countries.csv`,
       ),
-    ]).then(([firmsDataRaw, countriesDataRaw]) => {
+      csv(
+        // `${REPO_BASE_URL}/data/data_vis2_cities.csv`,
+        `./data/data_vis2_cities.csv`,
+      ),
+    ]).then(([firmsDataRaw, countriesDataRaw, cityMovesDataRaw]) => {
       firmsDataRaw.forEach((d) => {
         d["newFirm"] = d["New firm"];
         d["totalMoves"] = +d["Total moves"];
@@ -76,6 +81,14 @@ export function Vis2() {
 
       setFirmsData(firmsDataRaw);
       setCountriesData(countriesDataRaw);
+
+      // parse city moves data
+      cityMovesDataRaw.forEach((d) => {
+        d["country"] = d["Country"];
+        d["city"] = d["City"];
+        d["moves"] = +d["Moves"];
+      });
+      setCityMovesData(cityMovesDataRaw);
 
       // get unique list of countries
       const uniqueCountries = Array.from(
@@ -430,10 +443,12 @@ export function Vis2() {
   const hoverCountry = (event, d) => {
     const container = event.currentTarget.closest(".vis-content");
     const rect = container.getBoundingClientRect();
-    const citiesAfterMove =
-      countriesData
-        .find((c) => c.country === d.country && c.newFirm)
-        ?.cities.join(", ") || "N/A";
+
+    // Build per-city move counts for this country from the dedicated dataset
+    const citiesInCountry = (cityMovesData || [])
+      .filter((c) => c.country === d.country)
+      .map((c) => `${c.city} (${c.moves})`)
+      .join(", ");
 
     setHoveredObject({
       hoverType: "country",
@@ -454,8 +469,8 @@ export function Vis2() {
           value: d.movesNewFirmCountry,
         },
         {
-          label: "Cities after move",
-          value: citiesAfterMove,
+          label: "Moves by city",
+          value: citiesInCountry || "N/A",
         },
       ],
     });

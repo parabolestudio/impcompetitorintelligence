@@ -15,6 +15,12 @@ const outputCountriesPath = path.join(
   "data",
   "data_vis2_countries.csv",
 );
+const outputCitiesPath = path.join(
+  __dirname,
+  "..",
+  "data",
+  "data_vis2_cities.csv",
+);
 
 // Minimum total moves a "New firm" must have to be included in the output
 const MIN_MOVES_PER_NEW_FIRM = 3;
@@ -96,6 +102,7 @@ if (linesVis1.length !== linesVis2.length) {
 
 const firms = new Map(); // key: New firm → { count }
 const firmCountries = new Map(); // key: "firm|||country" → { count, cities }
+const countryCities = new Map(); // key: "firm|||country|||city" → { count }
 
 const dataRows = Math.min(linesVis1.length, linesVis2.length);
 for (let i = 1; i < dataRows; i++) {
@@ -120,6 +127,15 @@ for (let i = 1; i < dataRows; i++) {
   const group = firmCountries.get(key);
   group.count++;
   if (city) group.cities.add(city);
+
+  // (Firm, Country, City)-level totals
+  if (country && city) {
+    const ccKey = `${newFirm}|||${country}|||${city}`;
+    if (!countryCities.has(ccKey)) {
+      countryCities.set(ccKey, { count: 0 });
+    }
+    countryCities.get(ccKey).count++;
+  }
 }
 
 // ---------- Write output CSVs ----------
@@ -180,3 +196,37 @@ console.log(`Countries CSV written to ${outputCountriesPath}`);
 console.log(
   `  → ${includedCountryCount} (firm, country) rows included (filtered, min ${MIN_MOVES_PER_NEW_FIRM} moves per firm)`,
 );
+
+// --- CSV 3: Per country per city breakdown (moves only from included firms) ---
+// First, aggregate across qualifying firms into (country, city) totals
+const filteredCityCounts = new Map(); // key: "country|||city" → total moves
+for (const [key, group] of countryCities.entries()) {
+  const [firm, country, city] = key.split("|||");
+  if ((firms.get(firm)?.count || 0) < MIN_MOVES_PER_NEW_FIRM) continue;
+  const ccKey = `${country}|||${city}`;
+  filteredCityCounts.set(
+    ccKey,
+    (filteredCityCounts.get(ccKey) || 0) + group.count,
+  );
+}
+
+const cityLines = ["Country,City,Moves"];
+
+const sortedCities = [...filteredCityCounts.entries()].sort((a, b) => {
+  const [countryA, cityA] = a[0].split("|||");
+  const [countryB, cityB] = b[0].split("|||");
+  return (
+    countryA.localeCompare(countryB) ||
+    b[1] - a[1] ||
+    cityA.localeCompare(cityB)
+  );
+});
+
+for (const [key, count] of sortedCities) {
+  const [country, city] = key.split("|||");
+  cityLines.push(`${quoteField(country)},${quoteField(city)},${count}`);
+}
+
+fs.writeFileSync(outputCitiesPath, cityLines.join("\n"), "utf-8");
+console.log(`Cities CSV written to ${outputCitiesPath}`);
+console.log(`  → ${sortedCities.length} (country, city) rows`);

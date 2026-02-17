@@ -8,7 +8,7 @@ export function Company({ name, number, hoverFunction }) {
   const logoURL = `./assets/companyLogos/${logoMapping[name] || "Brookfield.png"}`;
 
   return html`<g transform="translate(${-width / 2}, ${size / 2 + 12})">
-    <foreignObject width="${width}" height="86" x="0" y="0">
+    <foreignObject width="${width}" height="110" x="0" y="0">
       <div
         xmlns="http://www.w3.org/1999/xhtml"
         class="company"

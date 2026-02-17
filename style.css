@@ -51,17 +51,18 @@
       margin: 0;
     }
     .company-logo {
-      height: 10px;
+      height: 14px;
       width: auto;
       object-fit: contain;
       display: block;
       margin: 4px auto 0;
-      max-width: 84px;
+      max-width: 80px;
     }
   }
   .company-logo-tooltip {
     margin: 0 auto;
-    height: 20px;
+    height: 24px;
+    width: auto;
   }
   .company-name-rotated {
     fill: var(--color-vis-neutral-imp-black-text, #0d121c);
@@ -84,7 +85,7 @@
   .former-firm-text {
     fill: var(--color-vis-neutral-imp-black-text, #0d121c);
     font-family: "Archivo Narrow";
-    font-size: 8px;
+    font-size: 10px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -145,7 +146,7 @@
     p.tooltip-label {
       color: var(--color-vis-neutral-imp-black-text, #0d121c);
       font-family: "Archivo Narrow";
-      font-size: 12px;
+      font-size: 14px;
       font-style: normal;
       font-weight: 700;
       line-height: normal;
@@ -155,7 +156,7 @@
     p.tooltip-value {
       color: var(--color-vis-neutral-imp-black-text, #0d121c);
       font-family: "Archivo Narrow";
-      font-size: 12px;
+      font-size: 14px;
       font-style: normal;
       font-weight: 400;
       line-height: normal;

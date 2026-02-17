@@ -325,6 +325,7 @@ export function Vis1() {
                 class="former-firm-text"
                 x="-${height1 - 2}"
                 y="${positionX}"
+                dominant-baseline="middle"
                 opacity="${isFaded ? 0.2 : 1}"
                 onmouseenter=${(event) => {
                   const container = event.currentTarget.closest(".vis-content");

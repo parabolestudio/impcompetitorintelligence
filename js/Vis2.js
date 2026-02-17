@@ -448,7 +448,7 @@ export function Vis2() {
     const citiesInCountry = (cityMovesData || [])
       .filter((c) => c.country === d.country)
       .map((c) => `${c.city} (${c.moves})`)
-      .join(", ");
+      .join("; ");
 
     setHoveredObject({
       hoverType: "country",

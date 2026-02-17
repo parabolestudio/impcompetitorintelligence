@@ -50,8 +50,8 @@ export function Vis2() {
         // `./data/data_vis2_countries.csv`,
       ),
       csv(
-        // `${REPO_BASE_URL}/data/data_vis2_cities.csv`,
-        `./data/data_vis2_cities.csv`,
+        `${REPO_BASE_URL}/data/data_vis2_cities.csv`,
+        // `./data/data_vis2_cities.csv`,
       ),
     ]).then(([firmsDataRaw, countriesDataRaw, cityMovesDataRaw]) => {
       firmsDataRaw.forEach((d) => {

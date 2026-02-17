@@ -464,7 +464,30 @@ export function Vis2() {
             <line
               x1="0"
               y1="${height1}"
-              x2="${width}"
+              x2="${sortedFirmsData.length > 0
+                ? firmCenterX[sortedFirmsData[0].newFirm] -
+                  firmWidths[0] / 2 -
+                  2
+                : width}"
+              y2="${height1}"
+              stroke="var(--color-vis-neutral-grey2)"
+            />
+            <line
+              x1="${sortedFirmsData.length > 0
+                ? firmCenterX[
+                    sortedFirmsData[sortedFirmsData.length - 1].newFirm
+                  ] +
+                  firmWidths[sortedFirmsData.length - 1] / 2 +
+                  2
+                : width}"
+              y1="${height1}"
+              x2="${sortedFirmsData.length > 0
+                ? firmCenterX[
+                    sortedFirmsData[sortedFirmsData.length - 1].newFirm
+                  ] +
+                  firmWidths[sortedFirmsData.length - 1] / 2 +
+                  20
+                : width}"
               y2="${height1}"
               stroke="var(--color-vis-neutral-grey2)"
             />
@@ -485,7 +508,7 @@ export function Vis2() {
             ${countriesData && countriesData.length > 0
               ? countriesData.map((d) => {
                   const firmX = firmCenterX[d.newFirm];
-                  const firmY = height1 + firmDiamondSize[d.newFirm] / 2; // start from bottom corner of diamond
+                  const firmY = height1 + firmDiamondSize[d.newFirm] / 2 + 4; // start from bottom corner of diamond
 
                   const pos = countryPositions[d.country];
 

@@ -293,7 +293,7 @@ export function Vis1() {
               New firms
             </text>
           </g>
-          ${uniqueFormerFirms.map((d, i) => {
+          ${uniqueFormerFirms.map((d) => {
             const positionX = formerFirmScaleX(d);
 
             // find out if this former firm is connected to the currently hovered new company (if any)

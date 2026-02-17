@@ -1,4 +1,4 @@
-import { renderVis } from "./js/preact-htm.js";
+import { renderVis } from "./js/lib.js";
 import { Vis2 } from "./js/Vis2.js";
 
 renderVis({

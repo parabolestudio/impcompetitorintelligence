@@ -1,3 +1,5 @@
+import { scaleLinear } from "./lib.js";
+
 export const REPO_BASE_URL =
   "https://raw.githubusercontent.com/parabolestudio/impcompetitorintelligence/refs/heads/main/";
 
@@ -33,11 +35,7 @@ export const colorMappingByNumber = {
 };
 // TODO: make domain and range dynamic based on data
 export function numberMovesScale(number) {
-  const scaleSize = d3
-    .scaleLinear()
-    .domain([3, 16])
-    .range([17, 38])
-    .clamp(true);
+  const scaleSize = scaleLinear().domain([3, 16]).range([17, 38]).clamp(true);
   const size = scaleSize(number);
   return size;
 }

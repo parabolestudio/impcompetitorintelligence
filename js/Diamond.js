@@ -1,4 +1,4 @@
-import { html } from "./preact-htm.js";
+import { html, scaleLinear } from "./lib.js";
 import {
   colorMappingByNumber,
   colorMappingByContinent,
@@ -21,8 +21,7 @@ export default function Diamond({
     fillColor = `var(--color-vis-${colorMappingByContinent[colorContinent] || "neutral-grey2"})`;
   }
 
-  const fontSizeScale = d3
-    .scaleLinear()
+  const fontSizeScale = scaleLinear()
     .domain([3, 16])
     .range([12, 16])
     .clamp(true);

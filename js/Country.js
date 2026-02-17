@@ -1,4 +1,4 @@
-import { html } from "./preact-htm.js";
+import { html } from "./lib.js";
 import { countryShapeMapping } from "./helpers.js";
 
 export default function Country({ countryName, color }) {

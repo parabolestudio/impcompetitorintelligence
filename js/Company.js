@@ -1,5 +1,5 @@
 import Diamond from "./Diamond.js";
-import { html } from "./preact-htm.js";
+import { html } from "./lib.js";
 import { numberMovesScale, logoMapping } from "./helpers.js";
 
 export function Company({ name, number, hoverFunction }) {

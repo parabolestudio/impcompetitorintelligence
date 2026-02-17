@@ -1,4 +1,4 @@
-import { html } from "./preact-htm.js";
+import { html } from "./lib.js";
 
 export function Tooltip({ hoveredItem }) {
   if (!hoveredItem || !hoveredItem.tooltipContent) return null;

@@ -1,4 +1,4 @@
-import { html } from "./preact-htm.js";
+import { html } from "./lib.js";
 
 export default function Fallback() {
   const handleCopyLink = async () => {

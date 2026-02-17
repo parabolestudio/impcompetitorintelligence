@@ -1,4 +1,4 @@
-import { html, useEffect, useState } from "./preact-htm.js";
+import { html, useEffect, useState, csv, scalePoint } from "./lib.js";
 import { CompanyWithDiamondExtended } from "./Company.js";
 import { Tooltip } from "./Tooltip.js";
 import Fallback from "./Fallback.js";
@@ -36,7 +36,7 @@ export function Vis1() {
 
   useEffect(() => {
     // Fetch data when the component mounts
-    d3.csv(
+    csv(
       `${REPO_BASE_URL}/data/data_vis1_transformed.csv`,
       // `./data/data_vis1_transformed.csv`,
     ).then((transformedData) => {
@@ -94,10 +94,10 @@ export function Vis1() {
     return html`<div>Loading data...</div>`;
   }
 
-  console.log("Rendering vis 1 with ", {
-    movesData,
-    newCompanyData,
-  });
+  // console.log("Rendering vis 1 with ", {
+  //   movesData,
+  //   newCompanyData,
+  // });
 
   // dimensions
   const visContainer = document.querySelector("#vis-1");
@@ -139,8 +139,7 @@ export function Vis1() {
     bottom: 110,
     right: 50,
   };
-  const newCompanyScaleY = d3
-    .scalePoint()
+  const newCompanyScaleY = scalePoint()
     .domain(uniqueCompanyMoves)
     .range([
       height1 + height2 + marginSection3.top,
@@ -174,8 +173,7 @@ export function Vis1() {
     }
   }
 
-  const newCompanyScaleX = d3
-    .scalePoint()
+  const newCompanyScaleX = scalePoint()
     .domain(Array.from(sortedNewCompanyData.map((d) => d.name)))
     .range([marginSection3.left, innerWidth - marginSection3.right]);
 
@@ -212,8 +210,7 @@ export function Vis1() {
     left: 90,
     right: 90,
   };
-  const formerFirmScaleX = d3
-    .scalePoint()
+  const formerFirmScaleX = scalePoint()
     .domain(uniqueFormerFirms)
     .range([marginSection1.left, innerWidth - marginSection1.right]);
 

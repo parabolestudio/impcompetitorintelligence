@@ -1,4 +1,4 @@
-import { html, useEffect, useState } from "./preact-htm.js";
+import { html, useEffect, useState, csv } from "./lib.js";
 import { CompanyWithDiamondRotated } from "./Company.js";
 import Fallback from "./Fallback.js";
 import { Tooltip } from "./Tooltip.js";
@@ -40,11 +40,11 @@ export function Vis2() {
   useEffect(() => {
     // Fetch data when the component mounts
     Promise.all([
-      d3.csv(
+      csv(
         // `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
         `./data/data_vis2_firms.csv`,
       ),
-      d3.csv(
+      csv(
         // `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
         `./data/data_vis2_countries.csv`,
       ),
@@ -81,7 +81,6 @@ export function Vis2() {
       const uniqueCountries = Array.from(
         new Set(countriesDataRaw.map((d) => d["Country"])),
       ).filter((c) => c && c.trim() !== "");
-      console.log("Unique countries: ", uniqueCountries);
 
       const countryCentricData = uniqueCountries.map((country) => {
         const moves = countriesDataRaw
@@ -104,11 +103,11 @@ export function Vis2() {
     return html`<div>Loading data...</div>`;
   }
 
-  console.log("Rendering vis 2 with ", {
-    firmsData,
-    countriesData,
-    countriesCentricData,
-  });
+  // console.log("Rendering vis 2 with ", {
+  //   firmsData,
+  //   countriesData,
+  //   countriesCentricData,
+  // });
 
   // dimensions
   const visContainer = document.querySelector("#vis-2");

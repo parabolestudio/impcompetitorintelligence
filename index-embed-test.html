@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- TODO: check if site is importing this font already or need to be added -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>IMP Competitor Intelligence</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      div.vis-container {
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      svg {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="max-width: 1200px; margin: 0 auto">
+      <div id="vis-1"></div>
+      <script>
+        window.customChartsConfig = {
+          ...window.customChartsConfig,
+          vis1: {
+            title:
+              "Apollo and Blackstone lead talent acquisition from a fragmented market",
+            subtitle: "Number of moves from former firms to new firms",
+            source:
+              "Source: IMP research; includes hires, acquisitions and contracts; only firms with 3 or more moves are shown",
+          },
+        };
+      </script>
+      <script
+        type="module"
+        src="https://parabolestudio.github.io/impcompetitorintelligence/script_vis1.js"
+      ></script>
+
+      <div id="vis-2"></div>
+      <script>
+        window.customChartsConfig = {
+          ...window.customChartsConfig,
+          vis2: {
+            title:
+              "The US and UK remain the primary hubs for talent relocation",
+            subtitle:
+              "Number of moves to new firms broken down by destination country",
+            source:
+              "Source: IMP research; includes hires, acquisitions and contracts; only firms with 3 or more moves are shown",
+          },
+        };
+      </script>
+      <script
+        type="module"
+        src="https://parabolestudio.github.io/impcompetitorintelligence/script_vis2.js"
+      ></script>
+    </div>
+  </body>
+</html>

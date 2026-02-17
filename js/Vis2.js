@@ -60,6 +60,8 @@ export function Vis2() {
           ? d["Cities"].split(";").map((s) => s.trim())
           : [];
         d["movesNewFirmCountry"] = +d["Moves"];
+        d["colorKey"] =
+          colorMappingByContinent[d["Continent"]] || "neutral-grey2";
       });
       setCountriesData(countriesDataRaw);
 
@@ -115,6 +117,11 @@ export function Vis2() {
   const innerHeight = height - margin.top - margin.bottom;
 
   const config = window.customChartsConfig || {};
+
+  // Bézier curve parameters (same principle as Vis1)
+  const curveCpOffset = 0.3;
+  const curveCpSkew = 0;
+  const curveCpSpread = 0;
 
   // pre-calculate country positions grouped by continent
   const countryPositions = {};
@@ -246,6 +253,14 @@ export function Vis2() {
     firmDiamondSize[d.newFirm] = numberMovesScale(d.totalMoves);
   });
 
+  // Extract unique colors for gradient definitions
+  const uniqueColors = Array.from(
+    new Set(countriesData.map((d) => d.colorKey)),
+  ).map((colorKey) => ({
+    key: colorKey,
+    cssVar: `var(--color-vis-${colorKey})`,
+  }));
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis2?.title || "Title for Vis 2"}</p>
     <p class="vis-subtitle">
@@ -259,6 +274,23 @@ export function Vis2() {
           fill="#f2f2f2"
           stroke="none"
         />
+        <defs>
+          ${uniqueColors.map((colorObj) => {
+            return html`
+              <linearGradient
+                id="gradient-${colorObj.key}"
+                x1="0"
+                y1="${height1}"
+                x2="0"
+                y2="${height1 + height2}"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="${colorObj.cssVar}" stop-opacity="0.3" />
+                <stop offset="1" stop-color="${colorObj.cssVar}" />
+              </linearGradient>
+            `;
+          })}
+        </defs>
 
         <g transform="translate(${margin.left}, ${margin.top})">
           <g>
@@ -291,15 +323,19 @@ export function Vis2() {
 
                   const pos = countryPositions[d.country];
 
+                  const dx = pos.centerX - firmX;
+                  const dy = pos.topY - firmY;
+                  const cp1x = firmX + curveCpSkew - curveCpSpread;
+                  const cp1y = firmY + dy * curveCpOffset;
+                  const cp2x = pos.centerX + curveCpSkew + curveCpSpread;
+                  const cp2y = pos.topY - dy * curveCpOffset;
+
                   return html`
-                    <line
-                      x1="${firmX}"
-                      y1="${firmY}"
-                      x2="${pos.centerX}"
-                      y2="${pos.topY}"
-                      stroke="var(--color-vis-${colorMappingByContinent[
-                        d.continent
-                      ] || "neutral-grey2"})"
+                    <path
+                      d="M ${firmX},${firmY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${pos.centerX},${pos.topY}"
+                      stroke="url(#gradient-${d.colorKey})"
+                      stroke-width="2"
+                      fill="none"
                     />
                   `;
                 })

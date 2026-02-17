@@ -117,7 +117,8 @@ export function Vis2() {
   const height2 = 300; // middle section (upper part) with lines connecting to diamond
   const height3 = 70; // middle section (lower part) from diamond to new countries
   let height4 = 320; // lower section with current company names and logos
-  let height = height1 + height2 + height3 + height4;
+  const height5 = 50; // continent labels below country shapes
+  let height = height1 + height2 + height3 + height4 + height5;
   const margin = {
     top: 0,
     right: 0,
@@ -339,8 +340,34 @@ export function Vis2() {
     }
   }
 
+  // Compute continent label positions (centered horizontally under each continent's country shapes)
+  const continentLabelPositions = [];
+  if (countriesCentricData && Object.keys(countryShapePositions).length > 0) {
+    // Group countries by continent
+    const continentCountries = {};
+    countriesCentricData.forEach((d) => {
+      if (!continentCountries[d.continent]) {
+        continentCountries[d.continent] = [];
+      }
+      if (countryShapePositions[d.country]) {
+        continentCountries[d.continent].push(d.country);
+      }
+    });
+
+    Object.entries(continentCountries).forEach(([continent, countries]) => {
+      if (countries.length === 0) return;
+      const xs = countries.map((c) => countryShapePositions[c].x);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      continentLabelPositions.push({
+        continent,
+        centerX: (minX + maxX) / 2,
+      });
+    });
+  }
+
   // Recalculate total height after potential height4 adjustment
-  height = height1 + height2 + height3 + height4;
+  height = height1 + height2 + height3 + height4 + height5;
   innerHeight = height - margin.top - margin.bottom;
 
   // Sort firms by barycenter (weighted average x of connected countries) to minimize line crossings
@@ -744,6 +771,23 @@ export function Vis2() {
                   `;
                 })
               : null}
+          </g>
+          <g id="continent-labels-group">
+            ${continentLabelPositions.map((cl) => {
+              const labelY =
+                height1 + height2 + height3 + height4 + height5 / 2;
+              return html`
+                <text
+                  x="${cl.centerX}"
+                  y="${labelY}"
+                  text-anchor="middle"
+                  dominant-baseline="central"
+                  class="continent-label-text"
+                >
+                  ${cl.continent}
+                </text>
+              `;
+            })}
           </g>
         </g>
       </svg>

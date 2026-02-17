@@ -25,10 +25,10 @@ function renderVis(vis) {
   }
 }
 
-// renderVis({
-//   id: "vis-1",
-//   component: Vis1,
-// });
+renderVis({
+  id: "vis-1",
+  component: Vis1,
+});
 
 renderVis({
   id: "vis-2",

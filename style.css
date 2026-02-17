@@ -58,17 +58,21 @@
       margin: 4px auto 0;
       max-width: 80px;
 
+      &.KKR,
+      &.BainCapital {
+        height: 12px;
+      }
+      &.PGIM,
+      &.TPG,
+      &.DWSGroup {
+        height: 19px;
+      }
       &.Blackstone,
       &.BlueOwlCapital,
-      &.DWSGroup,
       &.OaktreeCapitalManagement,
       &.PartnersGroup,
-      &.WarburgPincusLLC,
-      &.TPG {
+      &.WarburgPincusLLC {
         height: 24px;
-      }
-      &.PGIM {
-        height: 20px;
       }
     }
   }

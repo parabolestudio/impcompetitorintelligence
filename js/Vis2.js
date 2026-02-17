@@ -107,8 +107,8 @@ export function Vis2() {
   const height1 = 145; // upper section with new company names
   const height2 = 300; // middle section (upper part) with lines connecting to diamond
   const height3 = 70; // middle section (lower part) from diamond to new countries
-  const height4 = 320; // lower section with current company names and logos
-  const height = height1 + height2 + height3 + height4;
+  let height4 = 320; // lower section with current company names and logos
+  let height = height1 + height2 + height3 + height4;
   const margin = {
     top: 0,
     right: 0,
@@ -117,7 +117,7 @@ export function Vis2() {
   };
 
   const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
+  let innerHeight = height - margin.top - margin.bottom;
 
   const config = window.customChartsConfig || {};
 
@@ -207,6 +207,134 @@ export function Vis2() {
     });
   }
 
+  // Pre-calculate country shape positions with row packing to avoid overlaps
+  //   1. Row-packing layout for country shapes (lines ~211–289): A new algorithm calculates non-overlapping positions for country shape components:
+  // Countries are sorted left-to-right by their diamond's x position (same order as the diamonds above)
+  // Each country shape is placed at its diamond's centerX, but uses greedy row packing — if a shape would overlap horizontally with an already-placed shape in a row, it moves to the next row below
+  // Row y positions are computed in a second pass based on the max height of items in each row
+  const countryShapePositions = {};
+  if (countriesCentricData && Object.keys(countryPositions).length > 0) {
+    const shapeGapX = 15; // horizontal gap between shapes
+    const shapeGapY = 15; // vertical gap between rows
+    const sectionTopY = height1 + height2 + height3 + 15; // start y for first row
+
+    // Sort countries by their diamond x position (left to right)
+    const sortedCountriesForShapes = [...countriesCentricData]
+      .filter((d) => countryShapeMapping[d.country])
+      .sort(
+        (a, b) =>
+          countryPositions[a.country].centerX -
+          countryPositions[b.country].centerX,
+      );
+
+    // Row data: array of { occupiedRanges, items }
+    const rows = [];
+
+    // First pass: assign countries to rows using greedy packing
+    sortedCountriesForShapes.forEach((d) => {
+      const cfg = countryShapeMapping[d.country];
+      const shapeW = cfg.shapeWidth || 100;
+      const shapeH = cfg.shapeHeight || 100;
+      const textHeight = 25; // approximate height of country name text
+      const totalH = shapeH + textHeight;
+
+      const desiredCenterX = countryPositions[d.country].centerX;
+      const left = desiredCenterX - shapeW / 2 - shapeGapX / 2;
+      const right = desiredCenterX + shapeW / 2 + shapeGapX / 2;
+
+      let placed = false;
+      for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+        const row = rows[rowIdx];
+        const overlaps = row.occupiedRanges.some(
+          (r) => !(right <= r.left || left >= r.right),
+        );
+        if (!overlaps) {
+          row.occupiedRanges.push({ left, right });
+          row.items.push({
+            country: d.country,
+            shapeW,
+            shapeH,
+            totalH,
+            centerX: desiredCenterX,
+          });
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        rows.push({
+          occupiedRanges: [{ left, right }],
+          items: [
+            {
+              country: d.country,
+              shapeW,
+              shapeH,
+              totalH,
+              centerX: desiredCenterX,
+            },
+          ],
+        });
+      }
+    });
+
+    // Second pass: compute row heights
+    const rowHeights = rows.map((row) =>
+      Math.max(...row.items.map((item) => item.totalH)),
+    );
+
+    // Vertically center each first-row item individually within the height4 section.
+    // Items that overflow to subsequent rows are stacked below the first row.
+    const availableHeight = height4;
+
+    // For items in the first row: center each one individually
+    if (rows.length > 0) {
+      rows[0].items.forEach((item) => {
+        const itemCenterOffset = (availableHeight - item.totalH) / 2;
+        countryShapePositions[item.country] = {
+          x: item.centerX,
+          y: sectionTopY + Math.max(0, itemCenterOffset),
+          shapeW: item.shapeW,
+          shapeH: item.shapeH,
+        };
+      });
+    }
+
+    // For overflow rows (row 1+): stack below, starting after the centered first row
+    if (rows.length > 1) {
+      // Start overflow rows below the tallest first-row placement
+      let overflowY =
+        sectionTopY +
+        Math.max(0, (availableHeight - rowHeights[0]) / 2) +
+        rowHeights[0] +
+        shapeGapY;
+
+      for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
+        const maxH = rowHeights[rowIdx];
+        rows[rowIdx].items.forEach((item) => {
+          const itemOffsetY = (maxH - item.totalH) / 2;
+          countryShapePositions[item.country] = {
+            x: item.centerX,
+            y: overflowY + itemOffsetY,
+            shapeW: item.shapeW,
+            shapeH: item.shapeH,
+          };
+        });
+        overflowY += maxH + shapeGapY;
+      }
+
+      // Check if overflow extends past height4
+      const totalUsedHeight = overflowY - sectionTopY;
+      if (totalUsedHeight > height4) {
+        height4 = totalUsedHeight + 15;
+      }
+    }
+  }
+
+  // Recalculate total height after potential height4 adjustment
+  height = height1 + height2 + height3 + height4;
+  innerHeight = height - margin.top - margin.bottom;
+
   // Sort firms by barycenter (weighted average x of connected countries) to minimize line crossings
   const sortedFirmsData = [...firmsData];
   if (countriesData && Object.keys(countryPositions).length > 0) {
@@ -271,12 +399,6 @@ export function Vis2() {
     </p>
     <div class="vis-content">
       <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-        <rect
-          width="${innerWidth}"
-          height="${innerHeight}"
-          fill="#f2f2f2"
-          stroke="none"
-        />
         <defs>
           ${uniqueColors.map((colorObj) => {
             return html`
@@ -379,26 +501,48 @@ export function Vis2() {
                 })
               : null}
           </g>
+
           <g id="country-shapes-group">
             ${countriesCentricData && countriesCentricData.length > 0
               ? countriesCentricData.map((d) => {
-                  const pos = countryPositions[d.country];
+                  const shapePos = countryShapePositions[d.country];
+                  if (!shapePos) return null;
                   const continentColor =
                     colorMappingByContinent[d.continent] || "neutral-grey2";
-                  console.log(
-                    "Rendering country shape for ",
-                    d.country,
-                    " with color ",
-                    continentColor,
-                  );
                   return html`<g
-                    transform="translate(${pos.centerX}, ${pos.centerY + 150})"
+                    transform="translate(${shapePos.x}, ${shapePos.y})"
                   >
                     <${Country}
                       countryName=${d.country}
                       color=${continentColor}
                     />
                   </g>`;
+                })
+              : null}
+          </g>
+          <g id="diamond-to-country-lines-group">
+            ${countriesCentricData && countriesCentricData.length > 0
+              ? countriesCentricData.map((d) => {
+                  const shapePos = countryShapePositions[d.country];
+                  if (!shapePos) return null;
+                  const diamondPos = countryPositions[d.country];
+                  const diamondSize = numberMovesScale(d.movesNewFirmCountry);
+                  const diamondBottomY =
+                    diamondPos.centerY + (diamondSize * Math.sqrt(2)) / 2;
+                  const miniDiamondCenterY = shapePos.y + shapePos.shapeH / 2;
+                  const continentColor =
+                    colorMappingByContinent[d.continent] || "neutral-grey2";
+
+                  return html`
+                    <line
+                      x1="${diamondPos.centerX}"
+                      y1="${diamondBottomY}"
+                      x2="${shapePos.x}"
+                      y2="${miniDiamondCenterY}"
+                      stroke="var(--color-vis-${continentColor})"
+                      stroke-width="2"
+                    />
+                  `;
                 })
               : null}
           </g>

@@ -5,8 +5,10 @@ import {
   numberMovesScale,
   colorMappingByContinent,
   REPO_BASE_URL,
+  countryShapeMapping,
 } from "./helpers.js";
 import Diamond from "./Diamond.js";
+import Country from "./Country.js";
 
 export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);
@@ -69,6 +71,7 @@ export function Vis2() {
       const uniqueCountries = Array.from(
         new Set(countriesDataRaw.map((d) => d["Country"])),
       ).filter((c) => c && c.trim() !== "");
+      console.log("Unique countries: ", uniqueCountries);
 
       const countryCentricData = uniqueCountries.map((country) => {
         const moves = countriesDataRaw
@@ -317,7 +320,6 @@ export function Vis2() {
           <g id="lines-new-firms-to-countries-group">
             ${countriesData && countriesData.length > 0
               ? countriesData.map((d) => {
-                  console.log("Drawing line for ", d);
                   const firmX = firmCenterX[d.newFirm];
                   const firmY = height1 + firmDiamondSize[d.newFirm] / 2; // start from bottom corner of diamond
 
@@ -374,6 +376,29 @@ export function Vis2() {
                       />
                     </g>
                   `;
+                })
+              : null}
+          </g>
+          <g id="country-shapes-group">
+            ${countriesCentricData && countriesCentricData.length > 0
+              ? countriesCentricData.map((d) => {
+                  const pos = countryPositions[d.country];
+                  const continentColor =
+                    colorMappingByContinent[d.continent] || "neutral-grey2";
+                  console.log(
+                    "Rendering country shape for ",
+                    d.country,
+                    " with color ",
+                    continentColor,
+                  );
+                  return html`<g
+                    transform="translate(${pos.centerX}, ${pos.centerY + 150})"
+                  >
+                    <${Country}
+                      countryName=${d.country}
+                      color=${continentColor}
+                    />
+                  </g>`;
                 })
               : null}
           </g>

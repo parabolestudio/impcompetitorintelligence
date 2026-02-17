@@ -71,3 +71,66 @@ export const logoMapping = {
   TPG: "TPG.png",
   "Warburg Pincus LLC": "Warburg_Pincus.png",
 };
+
+export const countryShapeMapping = {
+  USA: {
+    shapeFile: "usaLow 1.svg",
+    countryLabel: "USA",
+    shapeWidth: 222,
+    shapeHeight: 155,
+  },
+  UK: {
+    shapeFile: "unitedKingdomLow 1.svg",
+    countryLabel: "UK",
+    shapeWidth: 122,
+    shapeHeight: 204,
+  },
+  Germany: {
+    shapeFile: "germanyLow 1.svg",
+    countryLabel: "Germany",
+    shapeWidth: 60,
+    shapeHeight: 81,
+  },
+  Belgium: {
+    shapeFile: "belgiumLow 1.svg",
+    countryLabel: "Belgium",
+    shapeWidth: 44,
+    shapeHeight: 36,
+  },
+  Netherlands: {
+    shapeFile: "netherlandsLow 1.svg",
+    countryLabel: "Netherlands",
+    shapeWidth: 35,
+    shapeHeight: 41,
+  },
+  Sweden: {
+    shapeFile: "swedenLow 1.svg",
+    countryLabel: "Sweden",
+    shapeWidth: 25,
+    shapeHeight: 54,
+  },
+  India: {
+    shapeFile: "indiaLow 1.svg",
+    countryLabel: "India",
+    shapeWidth: 65,
+    shapeHeight: 73,
+  },
+  Singapore: {
+    shapeFile: "singaporeLow 1.svg",
+    countryLabel: "Singapore",
+    shapeWidth: 79,
+    shapeHeight: 50,
+  },
+  Australia: {
+    shapeFile: "australiaLow 1.svg",
+    countryLabel: "Australia",
+    shapeWidth: 99,
+    shapeHeight: 93,
+  },
+  Switzerland: {
+    shapeFile: "switzerlandLow 1.svg",
+    countryLabel: "Switzerland",
+    shapeWidth: 77,
+    shapeHeight: 50,
+  },
+};

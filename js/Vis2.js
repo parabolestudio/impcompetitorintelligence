@@ -41,12 +41,12 @@ export function Vis2() {
     // Fetch data when the component mounts
     Promise.all([
       csv(
-        // `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
-        `./data/data_vis2_firms.csv`,
+        `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
+        // `./data/data_vis2_firms.csv`,
       ),
       csv(
-        // `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
-        `./data/data_vis2_countries.csv`,
+        `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
+        // `./data/data_vis2_countries.csv`,
       ),
     ]).then(([firmsDataRaw, countriesDataRaw]) => {
       firmsDataRaw.forEach((d) => {

@@ -96,6 +96,10 @@
 
   .new-company-group {
     cursor: pointer;
+    transition: opacity 0.3s;
+  }
+  .new-country-group {
+    transition: opacity 0.3s;
   }
 
   .vis-content {

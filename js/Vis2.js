@@ -1,6 +1,7 @@
 import { html, useEffect, useState } from "./preact-htm.js";
 import { CompanyWithDiamondRotated } from "./Company.js";
 import Fallback from "./Fallback.js";
+import { Tooltip } from "./Tooltip.js";
 import {
   numberMovesScale,
   colorMappingByContinent,
@@ -52,7 +53,6 @@ export function Vis2() {
         d["newFirm"] = d["New firm"];
         d["totalMoves"] = +d["Total moves"];
       });
-      setFirmsData(firmsDataRaw);
 
       countriesDataRaw.forEach((d) => {
         d["newFirm"] = d["New firm"];
@@ -65,6 +65,16 @@ export function Vis2() {
         d["colorKey"] =
           colorMappingByContinent[d["Continent"]] || "neutral-grey2";
       });
+
+      // add country to firms data for easier access when rendering and interactions
+      firmsDataRaw.forEach((firm) => {
+        const countryConnections = countriesDataRaw.filter(
+          (d) => d.newFirm === firm.newFirm,
+        );
+        firm.countries = countryConnections.map((d) => d.country);
+      });
+
+      setFirmsData(firmsDataRaw);
       setCountriesData(countriesDataRaw);
 
       // get unique list of countries
@@ -117,7 +127,7 @@ export function Vis2() {
   };
 
   const innerWidth = width - margin.left - margin.right;
-  let innerHeight = height - margin.top - margin.bottom;
+  // let innerHeight = height - margin.top - margin.bottom;
 
   const config = window.customChartsConfig || {};
 
@@ -158,13 +168,12 @@ export function Vis2() {
     });
 
     // 4. Calculate diamond widths for spacing
-    const countryDiamondWidth = (moves) =>
-      numberMovesScale(moves) * Math.sqrt(2);
+    const countryWidth = (moves) => numberMovesScale(moves) * Math.sqrt(2);
 
     // Total width of all diamonds
     const countryGap = 16; // spacing between diamonds within a continent group
     const totalDiamondWidth = countriesCentricData.reduce(
-      (sum, d) => sum + countryDiamondWidth(d.movesNewFirmCountry),
+      (sum, d) => sum + countryWidth(d.movesNewFirmCountry),
       0,
     );
     const totalIntraGaps = sortedContinents.reduce(
@@ -190,7 +199,7 @@ export function Vis2() {
     // 5. Assign positions
     sortedContinents.forEach((group, gi) => {
       group.countries.forEach((d, ci) => {
-        const w = countryDiamondWidth(d.movesNewFirmCountry);
+        const w = countryWidth(d.movesNewFirmCountry);
         countryPositions[d.country] = {
           centerX: cursorX + w / 2,
           centerY: height1 + height2,
@@ -392,6 +401,40 @@ export function Vis2() {
     cssVar: `var(--color-vis-${colorKey})`,
   }));
 
+  const hoverCountry = (event, d) => {
+    const container = event.currentTarget.closest(".vis-content");
+    const rect = container.getBoundingClientRect();
+    const citiesAfterMove =
+      countriesData
+        .find((c) => c.country === d.country && c.newFirm)
+        ?.cities.join(", ") || "N/A";
+
+    setHoveredObject({
+      hoverType: "country",
+      country: d.country,
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      tooltipContent: [
+        {
+          label: "Firms involved",
+          value: countriesData
+            .filter((c) => c.country === d.country)
+            .map((c) => c.newFirm)
+            .join(", "),
+        },
+        { label: "Country", value: d.country },
+        {
+          label: "Number of moves",
+          value: d.movesNewFirmCountry,
+        },
+        {
+          label: "Cities after move",
+          value: citiesAfterMove,
+        },
+      ],
+    });
+  };
+
   return html`<div class="vis-container">
     <p class="vis-title">${config?.vis2?.title || "Title for Vis 2"}</p>
     <p class="vis-subtitle">
@@ -447,12 +490,23 @@ export function Vis2() {
 
                   const pos = countryPositions[d.country];
 
-                  const dx = pos.centerX - firmX;
+                  // const dx = pos.centerX - firmX;
                   const dy = pos.topY - firmY;
                   const cp1x = firmX + curveCpSkew - curveCpSpread;
                   const cp1y = firmY + dy * curveCpOffset;
                   const cp2x = pos.centerX + curveCpSkew + curveCpSpread;
                   const cp2y = pos.topY - dy * curveCpOffset;
+
+                  // check if hovered object is a different new company to determine if this line should be faded
+                  const isFaded = hoveredObject
+                    ? (hoveredObject.hoverType === "newCompany" &&
+                        hoveredObject.newCompany !== d.newFirm) ||
+                      (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        (hoveredObject.newCompany !== d.newFirm ||
+                          hoveredObject.country !== d.country)) ||
+                      (hoveredObject.hoverType === "country" &&
+                        hoveredObject.country !== d.country)
+                    : false;
 
                   return html`
                     <path
@@ -460,6 +514,34 @@ export function Vis2() {
                       stroke="url(#gradient-${d.colorKey})"
                       stroke-width="2"
                       fill="none"
+                      opacity="${isFaded ? 0.2 : 1}"
+                      style="transition: opacity 0.3s;cursor: pointer;"
+                      onmouseenter=${(event) => {
+                        const container =
+                          event.currentTarget.closest(".vis-content");
+                        const rect = container.getBoundingClientRect();
+
+                        setHoveredObject({
+                          hoverType: "newCompanyCountryLine",
+                          newCompany: d.newFirm,
+                          country: d.country,
+                          x: event.clientX - rect.left,
+                          y: event.clientY - rect.top,
+                          tooltipContent: [
+                            { label: "New firm", value: d.newFirm },
+                            { label: "Country", value: d.country },
+                            {
+                              label: "Number of moves",
+                              value: d.movesNewFirmCountry,
+                            },
+                            {
+                              label: "Cities after move",
+                              value: d.cities.join(", "),
+                            },
+                          ],
+                        });
+                      }}
+                      onmouseleave=${() => setHoveredObject(null)}
                     />
                   `;
                 })
@@ -471,8 +553,47 @@ export function Vis2() {
               const x = firmCenterX[d.newFirm];
               const y = height1;
 
+              const isFaded = hoveredObject
+                ? (hoveredObject.hoverType === "newCompany" &&
+                    hoveredObject.newCompany !== d.newFirm) ||
+                  (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                    hoveredObject.newCompany !== d.newFirm) ||
+                  (hoveredObject.hoverType === "country" &&
+                    !d.countries.includes(hoveredObject.country))
+                : false;
+
               return html`
-                <g transform="translate(${x}, ${y})" class="new-company-group">
+                <g
+                  transform="translate(${x}, ${y})"
+                  class="new-company-group"
+                  onmouseenter=${(event) => {
+                    const container =
+                      event.currentTarget.closest(".vis-content");
+                    const rect = container.getBoundingClientRect();
+
+                    setHoveredObject({
+                      hoverType: "newCompany",
+                      newCompany: d.newFirm,
+                      countries: d.countries,
+                      x: event.clientX - rect.left,
+                      y: event.clientY - rect.top,
+                      tooltipContent: [
+                        { label: "New firm", value: d.newFirm },
+
+                        {
+                          label: "Number of moves",
+                          value: d.totalMoves,
+                        },
+                        {
+                          label: "Countries after move",
+                          value: d.countries.join(", "),
+                        },
+                      ],
+                    });
+                  }}
+                  onmouseleave=${() => setHoveredObject(null)}
+                  opacity="${isFaded ? 0.2 : 1}"
+                >
                   <${CompanyWithDiamondRotated}
                     name=${d.newFirm}
                     number=${d.totalMoves}
@@ -486,10 +607,29 @@ export function Vis2() {
             ${countriesCentricData && countriesCentricData.length > 0
               ? countriesCentricData.map((d) => {
                   const pos = countryPositions[d.country];
+
+                  // check if hovered object is a different country to determine if this country's diamond should be faded
+                  const isFaded = hoveredObject
+                    ? (hoveredObject.hoverType === "newCompany" &&
+                        !countriesData.some(
+                          (c) =>
+                            c.newFirm === hoveredObject.newCompany &&
+                            c.country === d.country,
+                        )) ||
+                      (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        hoveredObject.country !== d.country) ||
+                      (hoveredObject.hoverType === "country" &&
+                        hoveredObject.country !== d.country)
+                    : false;
+
                   return html`
                     <g
                       transform="translate(${pos.centerX}, ${pos.centerY})"
                       class="new-country-group ${d.country}"
+                      opacity="${isFaded ? 0.2 : 1}"
+                      style="transition: opacity 0.3s;cursor: pointer;"
+                      onmouseenter=${(event) => hoverCountry(event, d)}
+                      onmouseleave=${() => setHoveredObject(null)}
                     >
                       <${Diamond}
                         number=${d.movesNewFirmCountry}
@@ -509,8 +649,25 @@ export function Vis2() {
                   if (!shapePos) return null;
                   const continentColor =
                     colorMappingByContinent[d.continent] || "neutral-grey2";
+
+                  // check if hovered object is a different country to determine if this shape should be faded
+                  const isFaded = hoveredObject
+                    ? (hoveredObject.hoverType === "newCompany" &&
+                        !countriesData.some(
+                          (c) =>
+                            c.newFirm === hoveredObject.newCompany &&
+                            c.country === d.country,
+                        )) ||
+                      (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        hoveredObject.country !== d.country)
+                    : false;
+
                   return html`<g
                     transform="translate(${shapePos.x}, ${shapePos.y})"
+                    opacity="${isFaded ? 0.2 : 1}"
+                    style="transition: opacity 0.3s;cursor: pointer;"
+                    onmouseenter=${(event) => hoverCountry(event, d)}
+                    onmouseleave=${() => setHoveredObject(null)}
                   >
                     <${Country}
                       countryName=${d.country}
@@ -533,6 +690,20 @@ export function Vis2() {
                   const continentColor =
                     colorMappingByContinent[d.continent] || "neutral-grey2";
 
+                  // check if hovered object is a different country to determine if this line should be faded
+                  const isFaded = hoveredObject
+                    ? (hoveredObject.hoverType === "newCompany" &&
+                        !countriesData.some(
+                          (c) =>
+                            c.newFirm === hoveredObject.newCompany &&
+                            c.country === d.country,
+                        )) ||
+                      (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        hoveredObject.country !== d.country) ||
+                      (hoveredObject.hoverType === "country" &&
+                        hoveredObject.country !== d.country)
+                    : false;
+
                   return html`
                     <line
                       x1="${diamondPos.centerX}"
@@ -541,6 +712,10 @@ export function Vis2() {
                       y2="${miniDiamondCenterY}"
                       stroke="var(--color-vis-${continentColor})"
                       stroke-width="2"
+                      opacity="${isFaded ? 0.2 : 1}"
+                      style="transition: opacity 0.3s;cursor: pointer;"
+                      onmouseenter=${(event) => hoverCountry(event, d)}
+                      onmouseleave=${() => setHoveredObject(null)}
                     />
                   `;
                 })
@@ -548,6 +723,7 @@ export function Vis2() {
           </g>
         </g>
       </svg>
+      <${Tooltip} hoveredItem=${hoveredObject} />
     </div>
     <p class="vis-source">${config?.vis2?.source || "Source for Vis 2"}</p>
   </div>`;

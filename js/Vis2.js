@@ -681,6 +681,8 @@ export function Vis2() {
                             c.country === d.country,
                         )) ||
                       (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        hoveredObject.country !== d.country) ||
+                      (hoveredObject.hoverType === "country" &&
                         hoveredObject.country !== d.country)
                     : false;
 

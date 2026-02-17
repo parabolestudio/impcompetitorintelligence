@@ -41,10 +41,9 @@ export function numberMovesScale(number) {
 }
 
 export const colorMappingByContinent = {
-  "North America": "secondary-pink",
+  Americas: "secondary-pink",
   Europe: "secondary-teal",
   Asia: "secondary-green",
-  "South America": "secondary-blue",
   Africa: "secondary-purple",
   Oceania: "secondary-orange",
 };

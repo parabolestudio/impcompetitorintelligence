@@ -33,7 +33,7 @@ const COUNTRY_TO_CONTINENT = {
   Switzerland: "Europe",
   UAE: "Asia",
   UK: "Europe",
-  USA: "North America",
+  USA: "Americas",
 };
 
 // CSV-aware row parser (handles quoted fields with commas)

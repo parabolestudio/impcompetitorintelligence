@@ -57,6 +57,19 @@
       display: block;
       margin: 4px auto 0;
       max-width: 80px;
+
+      &.Blackstone,
+      &.BlueOwlCapital,
+      &.DWSGroup,
+      &.OaktreeCapitalManagement,
+      &.PartnersGroup,
+      &.WarburgPincusLLC,
+      &.TPG {
+        height: 24px;
+      }
+      &.PGIM {
+        height: 20px;
+      }
     }
   }
   .company-logo-tooltip {

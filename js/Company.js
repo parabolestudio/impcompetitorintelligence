@@ -15,7 +15,10 @@ export function Company({ name, number, hoverFunction }) {
         onmouseenter=${hoverFunction}
       >
         <p class="company-name">${name}</p>
-        <img src="${logoURL}" class="company-logo" />
+        <img
+          src="${logoURL}"
+          class="company-logo ${name.replaceAll(" ", "").split(",")[0]}"
+        />
       </div>
     </foreignObject>
   </g>`;

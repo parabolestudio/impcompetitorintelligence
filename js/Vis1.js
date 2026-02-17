@@ -332,6 +332,23 @@ export function Vis1() {
                   const connectedNewFirms = movesData
                     .filter((move) => move.formerFirm === d)
                     .map((move) => move.newFirm);
+
+                  const newPositionTitles = movesData
+                    .filter((move) => move.formerFirm === d)
+                    .map((move) => move.positionsWithSeniority)
+                    .flat();
+                  const uniqueNewPositionTitles = Array.from(
+                    new Set(newPositionTitles),
+                  ).sort((a, b) => a.localeCompare(b));
+
+                  const newTeams = movesData
+                    .filter((move) => move.formerFirm === d)
+                    .map((move) => move.teamInvolved)
+                    .flat();
+                  const uniqueNewTeams = Array.from(new Set(newTeams)).sort(
+                    (a, b) => a.localeCompare(b),
+                  );
+
                   setHoveredObject({
                     hoverType: "formerCompany",
                     formerCompany: d,
@@ -351,6 +368,14 @@ export function Vis1() {
                         value: movesData
                           .filter((move) => move.formerFirm === d)
                           .reduce((sum, move) => sum + move.numberMoves, 0),
+                      },
+                      {
+                        label: "Positions after move",
+                        value: uniqueNewPositionTitles.join(", "),
+                      },
+                      {
+                        label: "Teams after move",
+                        value: uniqueNewTeams.join(", "),
                       },
                     ],
                   });

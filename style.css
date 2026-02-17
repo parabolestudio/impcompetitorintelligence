@@ -133,6 +133,7 @@
       font-style: normal;
       font-weight: 700;
       line-height: normal;
+      margin: 0 0 10px 0;
     }
 
     p.tooltip-value {
@@ -142,6 +143,7 @@
       font-style: normal;
       font-weight: 400;
       line-height: normal;
+      margin: 0;
     }
   }
 }

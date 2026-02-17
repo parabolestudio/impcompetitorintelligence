@@ -463,13 +463,13 @@ export function Vis2() {
             .map((c) => c.newFirm)
             .join(", "),
         },
-        { label: "Country", value: d.country },
         {
           label: "Number of moves",
           value: d.movesNewFirmCountry,
         },
+        { label: "Country after move", value: d.country },
         {
-          label: "Moves by city",
+          label: "Cities after move",
           value: citiesInCountry || "N/A",
         },
       ],

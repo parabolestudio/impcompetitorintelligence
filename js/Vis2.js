@@ -129,8 +129,8 @@ export function Vis2() {
   const height1 = 145; // upper section with new company names
   const height2 = 300; // middle section (upper part) with lines connecting to diamond
   const height3 = 70; // middle section (lower part) from diamond to new countries
-  let height4 = 220; // lower section
-  const height5 = 50; // continent labels below country shapes
+  let height4 = 260; // lower section
+  const height5 = 40; // continent labels below country shapes
   let height = height1 + height2 + height3 + height4 + height5;
   const margin = {
     top: 0,

@@ -505,6 +505,7 @@ export function Vis2() {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
       tooltipContent: [
+        { label: "Country after move", value: d.country },
         {
           label: "Firms involved",
           value: countriesData
@@ -516,7 +517,6 @@ export function Vis2() {
           label: "Number of moves",
           value: d.movesNewFirmCountry,
         },
-        { label: "Country after move", value: d.country },
         {
           label: "Cities after move",
           value: citiesInCountry || "N/A",
@@ -781,8 +781,6 @@ export function Vis2() {
                     transform="translate(${shapePos.x}, ${shapePos.y})"
                     opacity="${isFaded ? 0.2 : 1}"
                     style="transition: opacity 0.3s;cursor: pointer;"
-                    onmouseenter=${(event) => hoverCountry(event, d)}
-                    onmouseleave=${() => setHoveredObject(null)}
                   >
                     <${Country}
                       countryName=${d.country}
@@ -875,8 +873,6 @@ export function Vis2() {
                           fill="none"
                           opacity="${isFaded ? 0.2 : 1}"
                           style="transition: opacity 0.3s;cursor: pointer;"
-                          onmouseenter=${(event) => hoverCountry(event, d)}
-                          onmouseleave=${() => setHoveredObject(null)}
                         />
                       `;
                     });

@@ -1,13 +1,29 @@
 :root {
   --color-vis-neutral-grey1: #738287;
+  --color-vis-neutral-grey1-light-gradient-start: #f9fafa;
+  --color-vis-neutral-grey1-light-gradient-end: #eceff0;
   --color-vis-neutral-grey2: #a1aeb3;
+  --color-vis-neutral-grey2-light-gradient-start: #f7f8f8;
+  --color-vis-neutral-grey2-light-gradient-end: #e3e6e7;
   --color-vis-neutral-imp-black-text: #0d121c;
   --color-vis-main-dark-blue: #00212e;
+  --color-vis-main-dark-blue-light-gradient-start: #f0f2f2;
+  --color-vis-main-dark-blue-light-gradient-end: #ccd3d5;
   --color-vis-secondary-green: #6ec259;
+  --color-vis-secondary-green-light-gradient-start: #f6fbf5;
+  --color-vis-secondary-green-light-gradient-end: #e2f3de;
   --color-vis-secondary-orange: #db8b4c;
+  --color-vis-secondary-orange-light-gradient-start: #fdf8f4;
+  --color-vis-secondary-orange-light-gradient-end: #f8e8db;
   --color-vis-secondary-pink: #c94fb3;
+  --color-vis-secondary-pink-light-gradient-start: #fcf5fb;
+  --color-vis-secondary-pink-light-gradient-end: #f4dcf0;
   --color-vis-secondary-purple: #8168e3;
+  --color-vis-secondary-purple-light-gradient-start: #f7f6fd;
+  --color-vis-secondary-purple-light-gradient-end: #e6e1f9;
   --color-vis-secondary-teal: #40b3c2;
+  --color-vis-secondary-teal-light-gradient-start: #f3fafb;
+  --color-vis-secondary-teal-light-gradient-end: #d9f0f3;
 }
 
 .vis-container {

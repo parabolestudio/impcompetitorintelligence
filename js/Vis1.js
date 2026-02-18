@@ -271,6 +271,26 @@ export function Vis1() {
               </linearGradient>
             `;
           })}
+          ${uniqueColors.map((colorObj) => {
+            return html`
+              <linearGradient
+                id="gradient-light-${colorObj.key}"
+                x1="0"
+                y1="${height1}"
+                x2="0"
+                y2="${height1 + height2}"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop
+                  stop-color="${`var(--color-vis-${colorObj.key}-light-gradient-start)`}"
+                />
+                <stop
+                  offset="1"
+                  stop-color="${`var(--color-vis-${colorObj.key}-light-gradient-end)`}"
+                />
+              </linearGradient>
+            `;
+          })}
         </defs>
         <g transform="translate(${margin.left}, ${margin.top})">
           <g>
@@ -406,11 +426,12 @@ export function Vis1() {
               <path
                 d="M ${d.start.x},${d.start
                   .y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${d.end.x},${d.end.y}"
-                stroke="url(#gradient-${d.colorKey})"
+                stroke="${isFaded
+                  ? `url(#gradient-light-${d.colorKey})`
+                  : `url(#gradient-${d.colorKey})`}"
                 stroke-width="2"
                 fill="none"
-                style="transition: stroke-opacity 0.3s; cursor: pointer;"
-                stroke-opacity="${isFaded ? 0.2 : 1}"
+                style="transition: stroke 0.3s; cursor: pointer;"
                 onmouseenter=${(event) => {
                   const container = event.currentTarget.closest(".vis-content");
                   const rect = container.getBoundingClientRect();

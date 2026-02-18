@@ -379,7 +379,7 @@ export function Vis2() {
       numContinentGaps * (continentShapeGap - shapeGapX);
     let cursorX = (innerWidth - scaledTotalWidth) / 2;
 
-    const tallestItem = Math.max(...shapeItems.map((item) => item.totalH));
+    // const tallestItem = Math.max(...shapeItems.map((item) => item.totalH));
 
     let prevContinent = null;
     shapeItems.forEach((item) => {
@@ -548,6 +548,26 @@ export function Vis2() {
               </linearGradient>
             `;
           })}
+          ${uniqueColors.map((colorObj) => {
+            return html`
+              <linearGradient
+                id="gradient-light-${colorObj.key}"
+                x1="0"
+                y1="${height1}"
+                x2="0"
+                y2="${height1 + height2}"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop
+                  stop-color="${`var(--color-vis-${colorObj.key}-light-gradient-start)`}"
+                />
+                <stop
+                  offset="1"
+                  stop-color="${`var(--color-vis-${colorObj.key}-light-gradient-end)`}"
+                />
+              </linearGradient>
+            `;
+          })}
         </defs>
 
         <g transform="translate(${margin.left}, ${margin.top})">
@@ -624,10 +644,11 @@ export function Vis2() {
                   return html`
                     <path
                       d="M ${firmX},${firmY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${pos.centerX},${pos.topY}"
-                      stroke="url(#gradient-${d.colorKey})"
+                      stroke="${isFaded
+                        ? `url(#gradient-light-${d.colorKey})`
+                        : `url(#gradient-${d.colorKey})`}"
                       stroke-width="2"
                       fill="none"
-                      opacity="${isFaded ? 0.2 : 1}"
                       style="transition: opacity 0.3s;cursor: pointer;"
                       onmouseenter=${(event) => {
                         const container =
@@ -868,10 +889,11 @@ export function Vis2() {
                       return html`
                         <path
                           d="M ${startX},${startY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}"
-                          stroke="var(--color-vis-${continentColor})"
+                          stroke="${isFaded
+                            ? `url(#gradient-light-${continentColor})`
+                            : `url(#gradient-${continentColor})`}"
                           stroke-width="2"
                           fill="none"
-                          opacity="${isFaded ? 0.2 : 1}"
                           style="transition: opacity 0.3s;cursor: pointer;"
                         />
                       `;

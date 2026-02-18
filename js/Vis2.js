@@ -129,7 +129,7 @@ export function Vis2() {
   const height1 = 145; // upper section with new company names
   const height2 = 300; // middle section (upper part) with lines connecting to diamond
   const height3 = 70; // middle section (lower part) from diamond to new countries
-  let height4 = 320; // lower section with current company names and logos
+  let height4 = 220; // lower section
   const height5 = 50; // continent labels below country shapes
   let height = height1 + height2 + height3 + height4 + height5;
   const margin = {
@@ -761,13 +761,19 @@ export function Vis2() {
                     : false;
 
                   return html`
-                    <line
-                      x1="${diamondPos.centerX}"
-                      y1="${diamondBottomY}"
-                      x2="${shapePos.x}"
-                      y2="${miniDiamondCenterY}"
+                    <path
+                      d="M ${diamondPos.centerX},${diamondBottomY} C ${diamondPos.centerX +
+                      curveCpSkew -
+                      curveCpSpread},${diamondBottomY +
+                      (miniDiamondCenterY - diamondBottomY) *
+                        curveCpOffset} ${shapePos.x +
+                      curveCpSkew +
+                      curveCpSpread},${miniDiamondCenterY -
+                      (miniDiamondCenterY - diamondBottomY) *
+                        curveCpOffset} ${shapePos.x},${miniDiamondCenterY}"
                       stroke="var(--color-vis-${continentColor})"
                       stroke-width="2"
+                      fill="none"
                       opacity="${isFaded ? 0.2 : 1}"
                       style="transition: opacity 0.3s;cursor: pointer;"
                       onmouseenter=${(event) => hoverCountry(event, d)}

@@ -71,58 +71,69 @@ export const logoMapping = {
 
 export const countryShapeMapping = {
   USA: {
-    shapeFile: "usaLow 1.svg",
+    shapeFile: "usaLow 1_withCities.svg",
     countryLabel: "USA",
     aspectRatio: 222 / 155, // width / height from viewBox
+    showCities: true,
   },
   UK: {
-    shapeFile: "unitedKingdomLow 1.svg",
+    shapeFile: "unitedKingdomLow 1_withCities.svg",
     countryLabel: "UK",
     aspectRatio: 122 / 204,
+    showCities: true,
   },
   Germany: {
     shapeFile: "germanyLow 1.svg",
     countryLabel: "Germany",
     aspectRatio: 60 / 81,
+    showCities: false,
   },
   Belgium: {
     shapeFile: "belgiumLow 1.svg",
     countryLabel: "Belgium",
     aspectRatio: 44 / 36,
+    showCities: false,
   },
   Netherlands: {
     shapeFile: "netherlandsLow 1.svg",
     countryLabel: "Netherlands",
     aspectRatio: 35 / 41,
+    showCities: false,
   },
   Sweden: {
     shapeFile: "swedenLow 1.svg",
     countryLabel: "Sweden",
     aspectRatio: 25 / 54,
+    showCities: false,
   },
   India: {
     shapeFile: "indiaLow 1.svg",
     countryLabel: "India",
     aspectRatio: 65 / 73,
+    showCities: false,
   },
   Singapore: {
     shapeFile: "singaporeLow 1.svg",
     countryLabel: "Singapore",
     aspectRatio: 79 / 50,
+    showCities: false,
   },
   Australia: {
     shapeFile: "australiaLow 1.svg",
     countryLabel: "Australia",
     aspectRatio: 99 / 93,
+    showCities: false,
   },
   Switzerland: {
     shapeFile: "switzerlandLow 1.svg",
     countryLabel: "Switzerland",
     aspectRatio: 77 / 50,
+    showCities: false,
   },
   Luxembourg: {
     shapeFile: "luxembourgLow 1.svg",
     countryLabel: "Luxembourg",
     aspectRatio: 25 / 36,
+    showCities: false,
   },
 };

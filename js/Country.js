@@ -25,15 +25,17 @@ export default function Country({
       <text class="country-name" text-anchor="middle" y="${height + 20}"
         >${countryName}</text
       >
-      <rect
-        y="${height / 2 - countryMiniDiamondSize / 2}"
-        x="-${countryMiniDiamondSize / 2}"
-        width="${countryMiniDiamondSize}"
-        height="${countryMiniDiamondSize}"
-        fill="var(--color-vis-${color})"
-        transform="rotate(45)"
-        transform-origin="0 ${height / 2}px"
-      />
+      ${!countryConfig.showCities
+        ? html` <rect
+            y="${height / 2 - countryMiniDiamondSize / 2}"
+            x="-${countryMiniDiamondSize / 2}"
+            width="${countryMiniDiamondSize}"
+            height="${countryMiniDiamondSize}"
+            fill="var(--color-vis-${color})"
+            transform="rotate(45)"
+            transform-origin="0 ${height / 2}px"
+          />`
+        : null}
     </g>`;
   }
 

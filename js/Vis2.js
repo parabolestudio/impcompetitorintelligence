@@ -17,6 +17,7 @@ export function Vis2() {
   const [countriesCentricData, setCountriesCentricData] = useState(null);
   const [cityMovesData, setCityMovesData] = useState(null);
   const [hoveredObject, setHoveredObject] = useState(null);
+  const [svgCityData, setSvgCityData] = useState({}); // { countryName: { viewBox: {w,h}, cities: { cityName: {x,y} } } }
 
   const MOBILE_THRESHOLD = 1200;
   const [showFallback, setShowFallback] = useState(
@@ -109,6 +110,66 @@ export function Vis2() {
         };
       });
       setCountriesCentricData(countryCentricData);
+
+      // Fetch SVG files for countries with showCities to extract city positions
+      const countriesWithCities = Object.entries(countryShapeMapping).filter(
+        ([, cfg]) => cfg.showCities,
+      );
+      Promise.all(
+        countriesWithCities.map(([countryName, cfg]) =>
+          // fetch(`${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`)
+          fetch(`./assets/countryShapes/${cfg.shapeFile}`)
+            .then((res) => res.text())
+            .then((svgText) => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(svgText, "image/svg+xml");
+              const svgEl = doc.querySelector("svg");
+              const vb = svgEl.getAttribute("viewBox").split(/\s+/).map(Number);
+              const viewBox = { width: vb[2], height: vb[3] };
+
+              // Find city groups inside <g class="cities">
+              const citiesGroup =
+                doc.querySelector('g[class="cities"]') ||
+                doc.querySelector(".cities");
+              const cities = {};
+              if (citiesGroup) {
+                for (const cityGroup of citiesGroup.children) {
+                  const cityName =
+                    cityGroup.getAttribute("class") ||
+                    cityGroup.getAttribute("id");
+                  if (!cityName) continue;
+                  const path = cityGroup.querySelector("path");
+                  if (!path) continue;
+                  const d = path.getAttribute("d");
+                  if (!d) continue;
+                  // Parse the first move command to get the top-left of the diamond
+                  // Format: "m29.865 68.306 4.584 4.584 ..." or "M29.865 68.306 ..."
+                  const match = d.match(
+                    /[mM]\s*([\d.eE+-]+)[\s,]+([\d.eE+-]+)\s+([\d.eE+-]+)[\s,]+([\d.eE+-]+)/,
+                  );
+                  if (match) {
+                    const topX = parseFloat(match[1]);
+                    const topY = parseFloat(match[2]);
+                    const dx = parseFloat(match[3]);
+                    const dy = parseFloat(match[4]);
+                    // Center of diamond = top point shifted down by one leg length
+                    cities[cityName] = { x: topX, y: topY + dy };
+                  }
+                }
+              }
+              return { countryName, viewBox, cities };
+            }),
+        ),
+      ).then((results) => {
+        const data = {};
+        results.forEach((r) => {
+          data[r.countryName] = {
+            viewBox: r.viewBox,
+            cities: r.cities,
+          };
+        });
+        setSvgCityData(data);
+      });
     });
   }, []);
 
@@ -759,6 +820,67 @@ export function Vis2() {
                       (hoveredObject.hoverType === "country" &&
                         hoveredObject.country !== d.country)
                     : false;
+
+                  const countryShapeConfig = countryShapeMapping[d.country];
+                  const parsedSvg = svgCityData[d.country];
+                  if (
+                    countryShapeConfig &&
+                    countryShapeConfig.showCities &&
+                    parsedSvg &&
+                    parsedSvg.cities
+                  ) {
+                    console.log(parsedSvg.cities);
+
+                    const shapePos = countryShapePositions[d.country];
+                    if (!shapePos) return null;
+                    const svgViewBox = parsedSvg.viewBox;
+                    const svgCityPositions = parsedSvg.cities;
+
+                    // Get cities for this country from the data
+                    const citiesInCountry = (cityMovesData || []).filter(
+                      (c) => c.country === d.country,
+                    );
+
+                    return citiesInCountry.map((cityData) => {
+                      const svgPos = svgCityPositions[cityData.city];
+                      if (!svgPos) return null; // city not in SVG
+
+                      // Transform SVG coordinates to vis coordinates
+                      // The <image> in Country.js is placed at x="-width/2", y=0 relative to the group at (shapePos.x, shapePos.y)
+                      const cityVisX =
+                        shapePos.x -
+                        shapePos.shapeW / 2 +
+                        (svgPos.x / svgViewBox.width) * shapePos.shapeW;
+                      const cityVisY =
+                        shapePos.y +
+                        (svgPos.y / svgViewBox.height) * shapePos.shapeH;
+
+                      // Line from diamond bottom to the city position
+                      const startX = diamondPos.centerX;
+                      const startY = diamondBottomY;
+                      const endX = cityVisX;
+                      const endY = cityVisY;
+                      const dy = endY - startY;
+
+                      const cp1x = startX;
+                      const cp1y = startY + dy * curveCpOffset;
+                      const cp2x = endX;
+                      const cp2y = endY - dy * curveCpOffset;
+
+                      return html`
+                        <path
+                          d="M ${startX},${startY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}"
+                          stroke="var(--color-vis-${continentColor})"
+                          stroke-width="2"
+                          fill="none"
+                          opacity="${isFaded ? 0.2 : 1}"
+                          style="transition: opacity 0.3s;cursor: pointer;"
+                          onmouseenter=${(event) => hoverCountry(event, d)}
+                          onmouseleave=${() => setHoveredObject(null)}
+                        />
+                      `;
+                    });
+                  }
 
                   return html`
                     <path

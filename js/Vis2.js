@@ -493,6 +493,16 @@ export function Vis2() {
     const container = event.currentTarget.closest(".vis-content");
     const rect = container.getBoundingClientRect();
 
+    // Raise all paths connected to this country
+    const svgEl = event.currentTarget.closest("svg");
+    if (svgEl) {
+      svgEl
+        .querySelectorAll(
+          `#lines-new-firms-to-countries-group path[data-country="${d.country}"]`,
+        )
+        .forEach((p) => p.parentNode.appendChild(p));
+    }
+
     // Build per-city move counts for this country from the dedicated dataset
     const citiesInCountry = (cityMovesData || [])
       .filter((c) => c.country === d.country)
@@ -649,8 +659,13 @@ export function Vis2() {
                         : `url(#gradient-${d.colorKey})`}"
                       stroke-width="2"
                       fill="none"
+                      data-new-firm="${d.newFirm}"
+                      data-country="${d.country}"
                       style="transition: opacity 0.3s;cursor: pointer;"
                       onmouseenter=${(event) => {
+                        // Raise hovered path to render on top
+                        const pathEl = event.currentTarget;
+                        pathEl.parentNode.appendChild(pathEl);
                         const container =
                           event.currentTarget.closest(".vis-content");
                         const rect = container.getBoundingClientRect();
@@ -701,6 +716,15 @@ export function Vis2() {
                   transform="translate(${x}, ${y})"
                   class="new-company-group"
                   onmouseenter=${(event) => {
+                    // Raise all paths connected to this firm
+                    const svgEl = event.currentTarget.closest("svg");
+                    if (svgEl) {
+                      svgEl
+                        .querySelectorAll(
+                          `#lines-new-firms-to-countries-group path[data-new-firm="${d.newFirm}"]`,
+                        )
+                        .forEach((p) => p.parentNode.appendChild(p));
+                    }
                     const container =
                       event.currentTarget.closest(".vis-content");
                     const rect = container.getBoundingClientRect();

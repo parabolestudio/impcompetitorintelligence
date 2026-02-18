@@ -431,9 +431,13 @@ export function Vis1() {
                   : `url(#gradient-${d.colorKey})`}"
                 stroke-width="2"
                 fill="none"
+                data-new-firm="${d.newFirm}"
                 style="transition: stroke 0.3s; cursor: pointer;"
                 onmouseenter=${(event) => {
-                  const container = event.currentTarget.closest(".vis-content");
+                  // Raise hovered path to render on top of other paths
+                  const pathEl = event.currentTarget;
+                  pathEl.parentNode.appendChild(pathEl);
+                  const container = pathEl.closest(".vis-content");
                   const rect = container.getBoundingClientRect();
                   setHoveredObject({
                     hoverType: "move",
@@ -487,6 +491,14 @@ export function Vis1() {
               let adjustedTooltipX = mouseX;
               if (mouseX + tooltipWidth + 20 > rect.width) {
                 adjustedTooltipX = mouseX - tooltipWidth - 60;
+              }
+
+              // Raise non-faded paths (those connected to this company) on top
+              const svgEl = event.currentTarget.closest("svg");
+              if (svgEl) {
+                svgEl
+                  .querySelectorAll(`path[data-new-firm="${d.name}"]`)
+                  .forEach((p) => p.parentNode.appendChild(p));
               }
 
               setHoveredObject({

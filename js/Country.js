@@ -1,12 +1,18 @@
 import { html } from "./lib.js";
 import { countryShapeMapping } from "./helpers.js";
 
-export default function Country({ countryName, color }) {
+export default function Country({
+  countryName,
+  color,
+  width: propWidth,
+  height: propHeight,
+}) {
   const countryConfig = countryShapeMapping[countryName];
   if (countryConfig) {
-    const { shapeFile, shapeWidth, shapeHeight } = countryConfig;
-    const width = shapeWidth || 100; // default width if not specified
-    const height = shapeHeight || 100; // default height if not specified
+    const { shapeFile, aspectRatio } = countryConfig;
+    // Use props if provided, otherwise derive from aspectRatio with a default area
+    const width = propWidth || (aspectRatio >= 1 ? 80 : 80 * aspectRatio);
+    const height = propHeight || (aspectRatio >= 1 ? 80 / aspectRatio : 80);
 
     const countryMiniDiamondSize = 7;
     return html`<g class="country ${countryName}">

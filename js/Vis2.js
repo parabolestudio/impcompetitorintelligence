@@ -229,128 +229,116 @@ export function Vis2() {
     });
   }
 
-  // Pre-calculate country shape positions with row packing to avoid overlaps
-  //   1. Row-packing layout for country shapes (lines ~211–289): A new algorithm calculates non-overlapping positions for country shape components:
-  // Countries are sorted left-to-right by their diamond's x position (same order as the diamonds above)
-  // Each country shape is placed at its diamond's centerX, but uses greedy row packing — if a shape would overlap horizontally with an already-placed shape in a row, it moves to the next row below
-  // Row y positions are computed in a second pass based on the max height of items in each row
+  // Pre-calculate country shape positions in a single row, grouped by continent
+  // All country shapes get roughly equal visual area, sized to fit within the available width
   const countryShapePositions = {};
   if (countriesCentricData && Object.keys(countryPositions).length > 0) {
-    const shapeGapX = 15; // horizontal gap between shapes
-    const shapeGapY = 15; // vertical gap between rows
-    const sectionTopY = height1 + height2 + height3 + 15; // start y for first row
+    const shapeGapX = 25; // horizontal gap between shapes within a continent
+    const sectionTopY = height1 + height2 + height3; // top of the country shapes section
+    const textHeight = 25; // approximate height of country name text below shape
+    const targetShapeArea = 6000; // target visual area (w*h) for each country shape
 
-    // Sort countries by their diamond x position (left to right)
-    const sortedCountriesForShapes = [...countriesCentricData]
-      .filter((d) => countryShapeMapping[d.country])
-      .sort(
-        (a, b) =>
-          countryPositions[a.country].centerX -
-          countryPositions[b.country].centerX,
-      );
+    // Per-country size multipliers for fine-tuning (1.0 = default)
+    // TODO: could be data-dependent, but needs fine-tuning for high value outlier
+    const countrySizeOverrides = {
+      USA: 8,
+      UK: 5,
+      Australia: 3,
+    };
 
-    // Row data: array of { occupiedRanges, items }
-    const rows = [];
-
-    // First pass: assign countries to rows using greedy packing
-    sortedCountriesForShapes.forEach((d) => {
-      const cfg = countryShapeMapping[d.country];
-      const shapeW = cfg.shapeWidth || 100;
-      const shapeH = cfg.shapeHeight || 100;
-      const textHeight = 25; // approximate height of country name text
-      const totalH = shapeH + textHeight;
-
-      const desiredCenterX = countryPositions[d.country].centerX;
-      const left = desiredCenterX - shapeW / 2 - shapeGapX / 2;
-      const right = desiredCenterX + shapeW / 2 + shapeGapX / 2;
-
-      let placed = false;
-      for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
-        const row = rows[rowIdx];
-        const overlaps = row.occupiedRanges.some(
-          (r) => !(right <= r.left || left >= r.right),
-        );
-        if (!overlaps) {
-          row.occupiedRanges.push({ left, right });
-          row.items.push({
-            country: d.country,
-            shapeW,
-            shapeH,
-            totalH,
-            centerX: desiredCenterX,
-          });
-          placed = true;
-          break;
-        }
-      }
-
-      if (!placed) {
-        rows.push({
-          occupiedRanges: [{ left, right }],
-          items: [
-            {
-              country: d.country,
-              shapeW,
-              shapeH,
-              totalH,
-              centerX: desiredCenterX,
-            },
-          ],
-        });
-      }
+    // Get countries with shape mappings, grouped by continent (same order as diamonds)
+    const continentGroups = {};
+    countriesCentricData.forEach((d) => {
+      if (!countryShapeMapping[d.country]) return;
+      if (!continentGroups[d.continent]) continentGroups[d.continent] = [];
+      continentGroups[d.continent].push(d);
     });
 
-    // Second pass: compute row heights
-    const rowHeights = rows.map((row) =>
-      Math.max(...row.items.map((item) => item.totalH)),
+    // Sort continents by total moves descending (same order as diamond layout)
+    const sortedContinentEntries = Object.entries(continentGroups)
+      .map(([continent, countries]) => ({
+        continent,
+        countries,
+        totalMoves: countries.reduce((s, c) => s + c.movesNewFirmCountry, 0),
+      }))
+      .sort((a, b) => b.totalMoves - a.totalMoves);
+
+    // Sort countries within each continent by moves descending
+    sortedContinentEntries.forEach((g) =>
+      g.countries.sort((a, b) => b.movesNewFirmCountry - a.movesNewFirmCountry),
     );
 
-    // Vertically center each first-row item individually within the height4 section.
-    // Items that overflow to subsequent rows are stacked below the first row.
-    const availableHeight = height4;
+    // Compute shape dimensions from equal area + aspect ratio
+    const shapeItems = [];
+    sortedContinentEntries.forEach((group) => {
+      group.countries.forEach((d) => {
+        const cfg = countryShapeMapping[d.country];
+        const ar = cfg.aspectRatio || 1;
+        const sizeMultiplier = countrySizeOverrides[d.country] || 1;
+        const area = targetShapeArea * sizeMultiplier;
+        // area = w * h, ar = w / h  =>  h = sqrt(area / ar), w = h * ar
+        const h = Math.sqrt(area / ar);
+        const w = h * ar;
+        shapeItems.push({
+          country: d.country,
+          continent: d.continent,
+          shapeW: w,
+          shapeH: h,
+          totalH: h + textHeight,
+        });
+      });
+    });
 
-    // For items in the first row: center each one individually
-    if (rows.length > 0) {
-      rows[0].items.forEach((item) => {
-        const itemCenterOffset = (availableHeight - item.totalH) / 2;
-        countryShapePositions[item.country] = {
-          x: item.centerX,
-          y: sectionTopY + Math.max(0, itemCenterOffset),
-          shapeW: item.shapeW,
-          shapeH: item.shapeH,
-        };
+    // Calculate total width needed and check if we need to scale down
+    const numContinentGaps = sortedContinentEntries.length - 1;
+    const continentShapeGap = 30; // gap between continent groups
+    const totalShapeWidth =
+      shapeItems.reduce((s, item) => s + item.shapeW + shapeGapX, 0) -
+      shapeGapX +
+      numContinentGaps * (continentShapeGap - shapeGapX);
+
+    // Scale down if total width exceeds available width
+    const maxWidth = innerWidth - 40; // leave some margin
+    const scaleFactor =
+      totalShapeWidth > maxWidth ? maxWidth / totalShapeWidth : 1;
+
+    // Apply scale factor to all items if needed
+    if (scaleFactor < 1) {
+      shapeItems.forEach((item) => {
+        item.shapeW *= scaleFactor;
+        item.shapeH *= scaleFactor;
+        item.totalH = item.shapeH + textHeight;
       });
     }
 
-    // For overflow rows (row 1+): stack below, starting after the centered first row
-    if (rows.length > 1) {
-      // Start overflow rows below the tallest first-row placement
-      let overflowY =
-        sectionTopY +
-        Math.max(0, (availableHeight - rowHeights[0]) / 2) +
-        rowHeights[0] +
-        shapeGapY;
+    // Position items in a single row, centered horizontally
+    const scaledTotalWidth =
+      shapeItems.reduce((s, item) => s + item.shapeW + shapeGapX, 0) -
+      shapeGapX +
+      numContinentGaps * (continentShapeGap - shapeGapX);
+    let cursorX = (innerWidth - scaledTotalWidth) / 2;
 
-      for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
-        const maxH = rowHeights[rowIdx];
-        rows[rowIdx].items.forEach((item) => {
-          const itemOffsetY = (maxH - item.totalH) / 2;
-          countryShapePositions[item.country] = {
-            x: item.centerX,
-            y: overflowY + itemOffsetY,
-            shapeW: item.shapeW,
-            shapeH: item.shapeH,
-          };
-        });
-        overflowY += maxH + shapeGapY;
+    const tallestItem = Math.max(...shapeItems.map((item) => item.totalH));
+
+    let prevContinent = null;
+    shapeItems.forEach((item) => {
+      // Add extra gap between continent groups
+      if (prevContinent !== null && item.continent !== prevContinent) {
+        cursorX += continentShapeGap - shapeGapX;
       }
 
-      // Check if overflow extends past height4
-      const totalUsedHeight = overflowY - sectionTopY;
-      if (totalUsedHeight > height4) {
-        height4 = totalUsedHeight + 15;
-      }
-    }
+      // Vertically center each item individually within height4
+      const itemCenterOffset = Math.max(0, (height4 - item.totalH) / 2);
+
+      countryShapePositions[item.country] = {
+        x: cursorX + item.shapeW / 2,
+        y: sectionTopY + itemCenterOffset,
+        shapeW: item.shapeW,
+        shapeH: item.shapeH,
+      };
+      cursorX += item.shapeW + shapeGapX;
+      prevContinent = item.continent;
+    });
   }
 
   // Compute continent label positions (centered horizontally under each continent's country shapes)
@@ -738,6 +726,8 @@ export function Vis2() {
                     <${Country}
                       countryName=${d.country}
                       color=${continentColor}
+                      width=${shapePos.shapeW}
+                      height=${shapePos.shapeH}
                     />
                   </g>`;
                 })

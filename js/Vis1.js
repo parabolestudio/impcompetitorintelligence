@@ -382,7 +382,7 @@ export function Vis1() {
                           .join(", "),
                       },
                       {
-                        label: "Number of moves",
+                        label: "Number of key executive moves*",
                         value: movesData
                           .filter((move) => move.formerFirm === d)
                           .reduce((sum, move) => sum + move.numberMoves, 0),
@@ -451,7 +451,7 @@ export function Vis1() {
                         value: html`${d.formerFirm} → ${d.newFirm}`,
                       },
                       {
-                        label: "Number of moves",
+                        label: "Number of key executive moves*",
                         value: d.numberMoves,
                       },
                       {
@@ -508,7 +508,10 @@ export function Vis1() {
                 y: event.clientY - rect.top,
                 tooltipContent: [
                   { label: "New firm", value: d.name },
-                  { label: "Number of moves", value: d.totalMoves },
+                  {
+                    label: "Number of key executive moves*",
+                    value: d.totalMoves,
+                  },
                   {
                     label: "Positions offered",
                     value: d.positionsWithSeniority

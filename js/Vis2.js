@@ -515,7 +515,7 @@ export function Vis2() {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
       tooltipContent: [
-        { label: "Country after move", value: d.country },
+        { label: "Country", value: d.country },
         {
           label: "Firms involved",
           value: countriesData
@@ -524,11 +524,11 @@ export function Vis2() {
             .join(", "),
         },
         {
-          label: "Number of moves",
+          label: "Number of key executive moves*",
           value: d.movesNewFirmCountry,
         },
         {
-          label: "Cities after move",
+          label: "Cities",
           value: citiesInCountry || "N/A",
         },
       ],
@@ -680,11 +680,11 @@ export function Vis2() {
                             { label: "New firm", value: d.newFirm },
                             { label: "Country", value: d.country },
                             {
-                              label: "Number of moves",
+                              label: "Number of key executive moves*",
                               value: d.movesNewFirmCountry,
                             },
                             {
-                              label: "Cities after move",
+                              label: "Cities",
                               value: d.cities.join(", "),
                             },
                           ],
@@ -739,7 +739,7 @@ export function Vis2() {
                         { label: "New firm", value: d.newFirm },
 
                         {
-                          label: "Number of moves",
+                          label: "Number of key executive moves*",
                           value: d.totalMoves,
                         },
                         {

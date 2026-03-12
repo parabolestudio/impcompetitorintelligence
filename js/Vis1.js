@@ -103,7 +103,7 @@ export function Vis1() {
   const visContainer = document.querySelector("#vis-1");
   const width =
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
-  const height1 = 160; // upper section with former company names
+  const height1 = 170; // upper section with former company names
   const height2 = 210; // middle section with lines connecting to current company names
   const height3 = 634; // lower section with current company names and logos
   const height = height1 + height2 + height3;

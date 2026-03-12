@@ -117,8 +117,8 @@ export function Vis2() {
       );
       Promise.all(
         countriesWithCities.map(([countryName, cfg]) =>
-          // fetch(`${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`)
-          fetch(`./assets/countryShapes/${cfg.shapeFile}`)
+          fetch(`${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`)
+            // fetch(`./assets/countryShapes/${cfg.shapeFile}`)
             .then((res) => res.text())
             .then((svgText) => {
               const parser = new DOMParser();

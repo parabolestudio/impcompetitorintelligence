@@ -71,13 +71,13 @@ export const logoMapping = {
 
 export const countryShapeMapping = {
   USA: {
-    shapeFile: "usaLow 1_withCities.svg",
+    shapeFile: "usaLow_1_withCities.svg",
     countryLabel: "USA",
     aspectRatio: 222 / 155, // width / height from viewBox
     showCities: true,
   },
   UK: {
-    shapeFile: "unitedKingdomLow 1_withCities.svg",
+    shapeFile: "unitedKingdomLow_1_withCities.svg",
     countryLabel: "UK",
     aspectRatio: 122 / 204,
     showCities: true,

@@ -19,6 +19,8 @@ export function Vis2() {
   const [hoveredObject, setHoveredObject] = useState(null);
   const [svgCityData, setSvgCityData] = useState({}); // { countryName: { viewBox: {w,h}, cities: { cityName: {x,y} } } }
 
+  console.log("Vis2 hoveredObject", { hoveredObject });
+
   const MOBILE_THRESHOLD = 1200;
   const [showFallback, setShowFallback] = useState(
     window.innerWidth < MOBILE_THRESHOLD,
@@ -872,8 +874,6 @@ export function Vis2() {
                     parsedSvg &&
                     parsedSvg.cities
                   ) {
-                    console.log(parsedSvg.cities);
-
                     const shapePos = countryShapePositions[d.country];
                     if (!shapePos) return null;
                     const svgViewBox = parsedSvg.viewBox;

@@ -20,7 +20,7 @@ export default function Fallback() {
 
   return html`<div class="fallback">
     <img
-      src="assets/fallback_image2.svg"
+      src="${REPO_BASE_URL}/assets/fallback_image2.svg"
       alt="Fallback image"
       class="fallback-image"
     />

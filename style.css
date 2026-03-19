@@ -181,10 +181,11 @@
     z-index: 1000;
     top: 0;
     left: 0;
-    transition:
+    /* transition:
       opacity 0.6s ease,
-      left 0.3s ease,
-      top 0.3s ease;
+      left 03s ease,
+      top 0.3s ease; */
+    transition: opacity 0.8s ease;
 
     display: flex;
     pointer-events: none;

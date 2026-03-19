@@ -1,4 +1,5 @@
 import { html } from "./lib.js";
+import { REPO_BASE_URL } from "./helpers.js";
 
 export default function Fallback() {
   const handleCopyLink = async () => {

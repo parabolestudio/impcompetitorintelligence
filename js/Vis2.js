@@ -5,6 +5,8 @@ import { Tooltip } from "./Tooltip.js";
 import {
   numberMovesScale,
   colorMappingByContinent,
+  REPO_BASE_URL,
+  isLocal,
   countryShapeMapping,
   getCountryShapeUrl,
 } from "./helpers.js";

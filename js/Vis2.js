@@ -5,9 +5,8 @@ import { Tooltip } from "./Tooltip.js";
 import {
   numberMovesScale,
   colorMappingByContinent,
-  REPO_BASE_URL,
-  isLocal,
   countryShapeMapping,
+  getCountryShapeUrl,
 } from "./helpers.js";
 import Diamond from "./Diamond.js";
 import Country from "./Country.js";
@@ -137,11 +136,7 @@ export function Vis2() {
       }, {});
       Promise.all(
         countriesWithCities.map(([countryName, cfg]) =>
-          fetch(
-            isLocal
-              ? `./assets/countryShapes/${cfg.shapeFile}`
-              : `${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`,
-          )
+          fetch(getCountryShapeUrl(cfg.shapeFile))
             .then((res) => res.text())
             .then((svgText) => {
               const parser = new DOMParser();

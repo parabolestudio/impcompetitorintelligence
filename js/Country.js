@@ -1,14 +1,12 @@
 import { html, useEffect, useRef, useState } from "./lib.js";
-import { countryShapeMapping, REPO_BASE_URL, isLocal } from "./helpers.js";
+import { countryShapeMapping, getCountryShapeUrl } from "./helpers.js";
 
 const svgShapeCache = new Map();
 let svgInstanceCount = 0;
 
 function loadCountryShape(shapeFile) {
   if (!svgShapeCache.has(shapeFile)) {
-    const shapeUrl = isLocal
-      ? `./assets/countryShapes/${shapeFile}`
-      : `${REPO_BASE_URL}/assets/countryShapes/${shapeFile}`;
+    const shapeUrl = getCountryShapeUrl(shapeFile);
 
     svgShapeCache.set(
       shapeFile,

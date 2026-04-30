@@ -14,6 +14,17 @@ export const isLocal = local; // set to false to load from GitHub repo instead o
 export const REPO_BASE_URL =
   "https://raw.githubusercontent.com/parabolestudio/impcompetitorintelligence/refs/heads/main/";
 
+function normalizeAssetPathSegment(segment) {
+  return encodeURIComponent(decodeURIComponent(segment));
+}
+
+export function getCountryShapeUrl(shapeFile) {
+  const normalizedShapeFile = normalizeAssetPathSegment(shapeFile);
+  return isLocal
+    ? `./assets/countryShapes/${normalizedShapeFile}`
+    : `${REPO_BASE_URL}/assets/countryShapes/${normalizedShapeFile}`;
+}
+
 // see color variable definitions in styles.css for actual color values
 // 15+ -> black
 // 13-14 -> pink

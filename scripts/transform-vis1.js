@@ -1,12 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-const inputPath = path.join(__dirname, "..", "data", "data_vis1.csv");
+const inputFileName = "data_vis1_2026_4.csv";
+
+const inputPath = path.join(__dirname, "..", "data", inputFileName);
 const outputPath = path.join(
   __dirname,
   "..",
   "data",
-  "data_vis1_transformed.csv",
+  inputFileName.replace(".csv", "_transformed.csv"),
 );
 
 // Minimum total moves a "New firm" must have to be included in the output

@@ -1,25 +1,28 @@
 const fs = require("fs");
 const path = require("path");
 
-const vis1Path = path.join(__dirname, "..", "data", "data_vis1.csv");
-const vis2Path = path.join(__dirname, "..", "data", "data_vis2.csv");
-const outputFirmsPath = path.join(
-  __dirname,
-  "..",
-  "data",
-  "data_vis2_firms.csv",
-);
+const dataUpdate = "2026_4";
+const inputFileNameVis1 = `data_vis1_${dataUpdate}.csv`;
+const inputFileNameVis2 = `data_vis2_${dataUpdate}.csv`;
+
+const outputFileNameFirms = `data_vis2_${dataUpdate}_firms.csv`;
+const outputFileNameCountries = `data_vis2_${dataUpdate}_countries.csv`;
+const outputFileNameCities = `data_vis2_${dataUpdate}_cities.csv`;
+
+const vis1Path = path.join(__dirname, "..", "data", inputFileNameVis1);
+const vis2Path = path.join(__dirname, "..", "data", inputFileNameVis2);
+const outputFirmsPath = path.join(__dirname, "..", "data", outputFileNameFirms);
 const outputCountriesPath = path.join(
   __dirname,
   "..",
   "data",
-  "data_vis2_countries.csv",
+  outputFileNameCountries,
 );
 const outputCitiesPath = path.join(
   __dirname,
   "..",
   "data",
-  "data_vis2_cities.csv",
+  outputFileNameCities,
 );
 
 // Minimum total moves a "New firm" must have to be included in the output
@@ -35,11 +38,18 @@ const COUNTRY_TO_CONTINENT = {
   Luxembourg: "Europe",
   Netherlands: "Europe",
   Singapore: "Asia",
+  Spain: "Europe",
   Sweden: "Europe",
   Switzerland: "Europe",
   UAE: "Asia",
   UK: "Europe",
   USA: "Americas",
+  Canada: "Americas",
+  Japan: "Asia",
+  SAR: "Asia",
+  "South Korea": "Asia",
+  Brazil: "Americas",
+  "New Zealand": "Oceania",
 };
 
 // CSV-aware row parser (handles quoted fields with commas)

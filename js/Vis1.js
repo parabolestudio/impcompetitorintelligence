@@ -7,7 +7,15 @@ import {
   colorMappingByNumber,
   logoMapping,
   REPO_BASE_URL,
+  isLocal,
 } from "./helpers.js";
+
+const updateParam = new URLSearchParams(window.location.search).get(
+  "dataUpdate",
+);
+const inputFileName = updateParam
+  ? `data_vis1_${updateParam}_transformed.csv`
+  : "data_vis1_2026_2_transformed.csv";
 
 export function Vis1() {
   const [movesData, setMovesData] = useState(null);
@@ -37,8 +45,9 @@ export function Vis1() {
   useEffect(() => {
     // Fetch data when the component mounts
     csv(
-      `${REPO_BASE_URL}/data/data_vis1_transformed.csv`,
-      // `./data/data_vis1_transformed.csv`,
+      isLocal
+        ? `./data/${inputFileName}`
+        : `${REPO_BASE_URL}/data/${inputFileName}`,
     ).then((transformedData) => {
       transformedData.forEach((d) => {
         d["formerFirm"] = d["Former firm"];

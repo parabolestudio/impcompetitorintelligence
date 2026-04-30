@@ -6,10 +6,18 @@ import {
   numberMovesScale,
   colorMappingByContinent,
   REPO_BASE_URL,
+  isLocal,
   countryShapeMapping,
 } from "./helpers.js";
 import Diamond from "./Diamond.js";
 import Country from "./Country.js";
+
+const updateParam = new URLSearchParams(window.location.search).get(
+  "dataUpdate",
+);
+const inputFileNamePart = updateParam
+  ? `data_vis2_${updateParam}`
+  : "data_vis2_2026_2";
 
 export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);
@@ -45,16 +53,19 @@ export function Vis2() {
     // Fetch data when the component mounts
     Promise.all([
       csv(
-        `${REPO_BASE_URL}/data/data_vis2_firms.csv`,
-        // `./data/data_vis2_firms.csv`,
+        isLocal
+          ? `./data/${inputFileNamePart}_firms.csv`
+          : `${REPO_BASE_URL}/data/${inputFileNamePart}_firms.csv`,
       ),
       csv(
-        `${REPO_BASE_URL}/data/data_vis2_countries.csv`,
-        // `./data/data_vis2_countries.csv`,
+        isLocal
+          ? `./data/${inputFileNamePart}_countries.csv`
+          : `${REPO_BASE_URL}/data/${inputFileNamePart}_countries.csv`,
       ),
       csv(
-        `${REPO_BASE_URL}/data/data_vis2_cities.csv`,
-        // `./data/data_vis2_cities.csv`,
+        isLocal
+          ? `./data/${inputFileNamePart}_cities.csv`
+          : `${REPO_BASE_URL}/data/${inputFileNamePart}_cities.csv`,
       ),
     ]).then(([firmsDataRaw, countriesDataRaw, cityMovesDataRaw]) => {
       firmsDataRaw.forEach((d) => {

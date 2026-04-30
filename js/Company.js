@@ -5,7 +5,7 @@ import { numberMovesScale, logoMapping } from "./helpers.js";
 export function Company({ name, number, hoverFunction }) {
   const width = 84;
   const size = numberMovesScale(number);
-  const logoURL = `./assets/companyLogos/${logoMapping[name] || "Brookfield.png"}`;
+  const logoURL = `./assets/companyLogos/${logoMapping[name] || ""}`;
 
   return html`<g transform="translate(${-width / 2}, ${size / 2 + 12})">
     <foreignObject width="${width}" height="110" x="0" y="0">

@@ -1,5 +1,7 @@
 import { scaleLinear } from "./lib.js";
 
+export const isLocal = false; // set to false to load from GitHub repo instead of local files
+
 export const REPO_BASE_URL =
   "https://raw.githubusercontent.com/parabolestudio/impcompetitorintelligence/refs/heads/main/";
 
@@ -50,6 +52,7 @@ export const colorMappingByContinent = {
 
 export const logoMapping = {
   "Apollo Global Management": "Apollo_Global_Management.png",
+  "Apollo Global Management, Inc.": "Apollo_Global_Management.png",
   "Ares Management Corporation": "Ares_Management.png",
   "Bain Capital": "Bain_Capital.png",
   Barings: "Barings.png",
@@ -60,6 +63,7 @@ export const logoMapping = {
   CVC: "CVC.png",
   "DWS Group": "DWS_Group.png",
   EQT: "EQT.png",
+  "EQT Group": "EQT.png",
   "IFM Investors": "IFM_Investors.png",
   KKR: "Kohlberg_Kravis_Roberts.png",
   "Oaktree Capital Management, L.P.": "Oaktree.png",

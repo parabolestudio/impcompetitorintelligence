@@ -191,7 +191,9 @@ export function Vis2() {
             cities: r.cities,
           };
 
-          const dataCities = Array.from(cityNamesByCountry[r.countryName] || []);
+          const dataCities = Array.from(
+            cityNamesByCountry[r.countryName] || [],
+          );
           dataCities.forEach((cityName) => {
             if (!r.cities[cityName]) {
               console.log(
@@ -973,6 +975,7 @@ export function Vis2() {
                       width=${shapePos.shapeW}
                       height=${shapePos.shapeH}
                       visibleCities=${cityNamesByCountry[d.country] || []}
+                      renderLabel=${false}
                     />
                   </g>`;
                 })
@@ -1082,6 +1085,43 @@ export function Vis2() {
                       onmouseenter=${(event) => hoverCountry(event, d)}
                       onmouseleave=${() => setHoveredObject(null)}
                     />
+                  `;
+                })
+              : null}
+          </g>
+          <g id="country-name-labels-group">
+            ${countriesCentricData && countriesCentricData.length > 0
+              ? countriesCentricData.map((d) => {
+                  const shapePos = countryShapePositions[d.country];
+                  if (!shapePos) return null;
+
+                  const isFaded = hoveredObject
+                    ? (hoveredObject.hoverType === "newCompany" &&
+                        !countriesData.some(
+                          (c) =>
+                            c.newFirm === hoveredObject.newCompany &&
+                            c.country === d.country,
+                        )) ||
+                      (hoveredObject.hoverType === "newCompanyCountryLine" &&
+                        hoveredObject.country !== d.country) ||
+                      (hoveredObject.hoverType === "country" &&
+                        hoveredObject.country !== d.country)
+                    : false;
+
+                  const displayName =
+                    countryShapeMapping[d.country]?.countryLabel || d.country;
+
+                  return html`
+                    <text
+                      x="${shapePos.x}"
+                      y="${shapePos.y + shapePos.shapeH + 20}"
+                      text-anchor="middle"
+                      class="country-name"
+                      opacity="${isFaded ? 0.2 : 1}"
+                      style="transition: opacity 0.3s;pointer-events: none;"
+                    >
+                      ${displayName}
+                    </text>
                   `;
                 })
               : null}

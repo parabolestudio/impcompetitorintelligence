@@ -126,6 +126,7 @@ export default function Country({
   width: propWidth,
   height: propHeight,
   visibleCities: propVisibleCities = [],
+  renderLabel = true,
 }) {
   const [svgShape, setSvgShape] = useState(null);
   const [svgLoadError, setSvgLoadError] = useState(false);
@@ -212,9 +213,14 @@ export default function Country({
               fill="transparent"
             />`
           : null}
-      <text class="country-name" text-anchor="middle" y="${height + 20}"
-        >${displayName}</text
-      >
+      ${renderLabel
+        ? html`<text
+            class="country-name"
+            text-anchor="middle"
+            y="${height + 20}"
+            >${displayName}</text
+          >`
+        : null}
       ${!countryConfig.showCities
         ? html` <rect
             y="${height / 2 - countryMiniDiamondSize / 2}"

@@ -149,16 +149,14 @@
     position: relative;
   }
 
-  .country {
-    .country-name {
-      color: var(--color-vis-neutral-imp-black-text, #0d121c);
-      text-align: right;
-      font-family: "Archivo Narrow";
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: normal;
-    }
+  .country-name {
+    color: var(--color-vis-neutral-imp-black-text, #0d121c);
+    text-align: right;
+    font-family: "Archivo Narrow";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
   }
 
   .country-shape [data-city-marker="true"][data-has-data-marker="false"] {

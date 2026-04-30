@@ -181,7 +181,7 @@ export const countryShapeMapping = {
     showCities: false,
   },
   "South Korea": {
-    shapeFile: "South Korea.svg",
+    shapeFile: "South_Korea.svg",
     countryLabel: "South Korea",
     aspectRatio: 85 / 136,
     showCities: false,

@@ -34,6 +34,7 @@ const COUNTRY_TO_CONTINENT = {
   Belgium: "Europe",
   France: "Europe",
   Germany: "Europe",
+  Denmark: "Europe",
   India: "Asia",
   Luxembourg: "Europe",
   Netherlands: "Europe",

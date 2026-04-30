@@ -303,11 +303,15 @@ export function Vis2() {
     });
   }
 
-  // Pre-calculate country shape positions in a single row, grouped by continent
-  // All country shapes get roughly equal visual area, sized to fit within the available width
+  // Pre-calculate country shape positions, grouped by continent.
+  // Continents with 4+ countries are placed in two rows; others in one row,
+  // vertically centered to align with two-row continents.
   const countryShapePositions = {};
   if (countriesCentricData && Object.keys(countryPositions).length > 0) {
-    const shapeGapX = 25; // horizontal gap between shapes within a continent
+    const shapeGapX = 25; // horizontal gap between shapes within a row
+    const rowGap = 4; // vertical gap between rows in a two-row continent
+    const twoRowTopPadding = 25; // extra top spacing before the first row in two-row layout
+    const twoRowThreshold = 4; // continents with this many or more countries get two rows
     const sectionTopY = height1 + height2 + height3; // top of the country shapes section
     const textHeight = 25; // approximate height of country name text below shape
     const targetShapeArea = 6000; // target visual area (w*h) for each country shape
@@ -363,55 +367,147 @@ export function Vis2() {
       });
     });
 
-    // Calculate total width needed and check if we need to scale down
+    // Build a map for quick item lookup
+    const shapeItemByCountry = {};
+    shapeItems.forEach((item) => {
+      shapeItemByCountry[item.country] = item;
+    });
+
+    // Two-row splitting only activates when at least 2 continents have >= twoRowThreshold countries
+    const continentsAboveThreshold = sortedContinentEntries.filter(
+      (g) => g.countries.length >= twoRowThreshold,
+    ).length;
+    const enableTwoRow = continentsAboveThreshold >= 2;
+
+    // Determine row assignment for each continent (two rows if >= twoRowThreshold countries AND enableTwoRow)
+    const continentLayoutMap = {};
+    sortedContinentEntries.forEach((group) => {
+      const n = group.countries.length;
+      const isTwoRow = enableTwoRow && n >= twoRowThreshold;
+      // Interleave: even-index countries → row 0, odd-index → row 1
+      const rows = isTwoRow
+        ? [
+            group.countries.filter((_, i) => i % 2 === 0),
+            group.countries.filter((_, i) => i % 2 === 1),
+          ]
+        : [group.countries];
+      continentLayoutMap[group.continent] = { isTwoRow, rows };
+    });
+
+    // Compute row widths and block widths for each continent
+    const getRowWidth = (row) =>
+      row.reduce(
+        (sum, d) => sum + (shapeItemByCountry[d.country]?.shapeW || 0),
+        0,
+      ) +
+      Math.max(0, row.length - 1) * shapeGapX;
+
+    const continentBlockData = sortedContinentEntries.map((group) => {
+      const layout = continentLayoutMap[group.continent];
+      const rowWidths = layout.rows.map(getRowWidth);
+      return {
+        continent: group.continent,
+        rowWidths,
+        blockWidth: Math.max(...rowWidths),
+      };
+    });
+
+    // Calculate total width needed (using per-continent block widths)
     const numContinentGaps = sortedContinentEntries.length - 1;
     const continentShapeGap = 30; // gap between continent groups
-    const totalShapeWidth =
-      shapeItems.reduce((s, item) => s + item.shapeW + shapeGapX, 0) -
-      shapeGapX +
-      numContinentGaps * (continentShapeGap - shapeGapX);
+    const totalBlockWidth =
+      continentBlockData.reduce((s, b) => s + b.blockWidth, 0) +
+      numContinentGaps * continentShapeGap;
 
     // Scale down if total width exceeds available width
     const maxWidth = innerWidth - 40; // leave some margin
     const scaleFactor =
-      totalShapeWidth > maxWidth ? maxWidth / totalShapeWidth : 1;
+      totalBlockWidth > maxWidth ? maxWidth / totalBlockWidth : 1;
 
-    // Apply scale factor to all items if needed
+    // Apply scale factor to all items if needed, then recompute block widths
     if (scaleFactor < 1) {
       shapeItems.forEach((item) => {
         item.shapeW *= scaleFactor;
         item.shapeH *= scaleFactor;
         item.totalH = item.shapeH + textHeight;
       });
+      continentBlockData.forEach((b) => {
+        const layout = continentLayoutMap[b.continent];
+        b.rowWidths = layout.rows.map(getRowWidth);
+        b.blockWidth = Math.max(...b.rowWidths);
+      });
     }
 
-    // Position items in a single row, centered horizontally
-    const scaledTotalWidth =
-      shapeItems.reduce((s, item) => s + item.shapeW + shapeGapX, 0) -
-      shapeGapX +
-      numContinentGaps * (continentShapeGap - shapeGapX);
-    let cursorX = (innerWidth - scaledTotalWidth) / 2;
+    // Compute the tallest single shape height across all items (used as row-height reference)
+    const maxSingleShapeH = shapeItems.reduce(
+      (max, item) => Math.max(max, item.shapeH),
+      0,
+    );
+    const hasTwoRowContinent = sortedContinentEntries.some(
+      (g) => continentLayoutMap[g.continent].isTwoRow,
+    );
+    // Total block height for two-row continents; single-row continents center within this
+    const twoRowBlockH = hasTwoRowContinent
+      ? 2 * maxSingleShapeH + rowGap
+      : maxSingleShapeH;
 
-    // const tallestItem = Math.max(...shapeItems.map((item) => item.totalH));
+    // Expand height4 to fit the two-row layout + text if needed
+    height4 = Math.max(height4, twoRowBlockH + textHeight + 20);
 
-    let prevContinent = null;
-    shapeItems.forEach((item) => {
-      // Add extra gap between continent groups
-      if (prevContinent !== null && item.continent !== prevContinent) {
-        cursorX += continentShapeGap - shapeGapX;
-      }
+    // Position items, centered horizontally
+    const scaledTotalBlockWidth =
+      continentBlockData.reduce((s, b) => s + b.blockWidth, 0) +
+      numContinentGaps * continentShapeGap;
+    let cursorX = (innerWidth - scaledTotalBlockWidth) / 2;
 
-      // Vertically center each item individually within height4
-      const itemCenterOffset = Math.max(0, (height4 - item.totalH) / 2);
+    sortedContinentEntries.forEach((group, gi) => {
+      const layout = continentLayoutMap[group.continent];
+      const blockData = continentBlockData[gi];
 
-      countryShapePositions[item.country] = {
-        x: cursorX + item.shapeW / 2,
-        y: sectionTopY + itemCenterOffset,
-        shapeW: item.shapeW,
-        shapeH: item.shapeH,
-      };
-      cursorX += item.shapeW + shapeGapX;
-      prevContinent = item.continent;
+      layout.rows.forEach((row, rowIndex) => {
+        const rowShapeH = row.reduce(
+          (max, d) => Math.max(max, shapeItemByCountry[d.country]?.shapeH || 0),
+          0,
+        );
+
+        // Y: two-row continents stack rows top-to-bottom; single-row continents center vertically
+        const rowY = layout.isTwoRow
+          ? sectionTopY +
+            twoRowTopPadding +
+            rowIndex * (maxSingleShapeH + rowGap)
+          : sectionTopY +
+            (hasTwoRowContinent
+              ? (twoRowBlockH - rowShapeH) / 2
+              : Math.max(0, (height4 - rowShapeH - textHeight) / 2));
+
+        // Row 0: centered; Row 1 (second row in two-row layout): right-aligned
+        const rowWidth = blockData.rowWidths[rowIndex];
+        let rowCursorX =
+          layout.isTwoRow && rowIndex === 1
+            ? cursorX + blockData.blockWidth - rowWidth
+            : cursorX + (blockData.blockWidth - rowWidth) / 2;
+
+        row.forEach((d) => {
+          const item = shapeItemByCountry[d.country];
+          if (!item) return;
+          // When no two-row layout is active, center each item individually (matching original behavior)
+          // When two-row layout is active, center each item within its row height
+          const itemY = hasTwoRowContinent
+            ? rowY + Math.max(0, (maxSingleShapeH - item.shapeH) / 2)
+            : sectionTopY +
+              Math.max(0, (height4 - item.shapeH - textHeight) / 2);
+          countryShapePositions[d.country] = {
+            x: rowCursorX + item.shapeW / 2,
+            y: itemY,
+            shapeW: item.shapeW,
+            shapeH: item.shapeH,
+          };
+          rowCursorX += item.shapeW + shapeGapX;
+        });
+      });
+
+      cursorX += blockData.blockWidth;
+      if (gi < sortedContinentEntries.length - 1) cursorX += continentShapeGap;
     });
   }
 

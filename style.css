@@ -64,7 +64,7 @@
       font-size: 14px;
       font-style: normal;
       font-weight: 700;
-      line-height: normal;
+      line-height: 100%;
       margin: 0;
     }
     .company-logo {
@@ -73,7 +73,7 @@
       object-fit: contain;
       display: block;
       margin: 4px auto 0;
-      max-width: 80px;
+      max-width: 70px;
 
       &.KKR,
       &.BainCapital {
@@ -87,8 +87,7 @@
       &.Blackstone,
       &.BlueOwlCapital,
       &.OaktreeCapitalManagement,
-      &.PartnersGroup,
-      &.WarburgPincusLLC {
+      &.PartnersGroup {
         height: 24px;
       }
     }

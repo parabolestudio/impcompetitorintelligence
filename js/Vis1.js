@@ -144,9 +144,9 @@ export function Vis1() {
   ).sort((a, b) => a - b);
   const marginSection3 = {
     top: 180,
-    left: 50,
+    left: 35,
     bottom: 110,
-    right: 50,
+    right: 35,
   };
   const newCompanyScaleY = scalePoint()
     .domain(uniqueCompanyMoves)

@@ -9,7 +9,8 @@ export default function Country({
 }) {
   const countryConfig = countryShapeMapping[countryName];
   if (countryConfig) {
-    const { shapeFile, aspectRatio } = countryConfig;
+    const { shapeFile, aspectRatio, countryLabel } = countryConfig;
+    const displayName = countryLabel || countryName;
     // Use props if provided, otherwise derive from aspectRatio with a default area
     const width = propWidth || (aspectRatio >= 1 ? 80 : 80 * aspectRatio);
     const height = propHeight || (aspectRatio >= 1 ? 80 / aspectRatio : 80);
@@ -23,7 +24,7 @@ export default function Country({
         height="${height}"
       />
       <text class="country-name" text-anchor="middle" y="${height + 20}"
-        >${countryName}</text
+        >${displayName}</text
       >
       ${!countryConfig.showCities
         ? html` <rect

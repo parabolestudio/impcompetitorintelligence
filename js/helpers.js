@@ -94,7 +94,7 @@ export const countryShapeMapping = {
   UK: {
     shapeFile: "unitedKingdomLow_1_withCities.svg",
     countryLabel: "UK",
-    aspectRatio: 122 / 204,
+    aspectRatio: 121 / 174,
     showCities: true,
   },
   Germany: {
@@ -189,7 +189,7 @@ export const countryShapeMapping = {
   },
   SAR: {
     shapeFile: "SAR.svg",
-    countryLabel: "SAR (Hong Kong and Macau)",
+    countryLabel: "SAR (Hong Kong & Macau)",
     aspectRatio: 126 / 63,
     showCities: false,
   },
@@ -197,6 +197,12 @@ export const countryShapeMapping = {
     shapeFile: "France.svg",
     countryLabel: "France",
     aspectRatio: 133 / 131,
+    showCities: false,
+  },
+  Denmark: {
+    shapeFile: "Denmark.svg",
+    countryLabel: "Denmark",
+    aspectRatio: 85 / 103,
     showCities: false,
   },
 };

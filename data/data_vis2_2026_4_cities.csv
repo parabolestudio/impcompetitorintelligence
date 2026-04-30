@@ -1,42 +1,31 @@
 Country,City,Moves
-Australia,Sydney,7
-Australia,Melbourne,1
-Canada,Montreal,1
-Canada,Quebec,1
-France,Paris,1
-Germany,Frankfurt,3
+Australia,Sydney,5
+Australia,Melbourne,2
+Denmark,Billund,1
+Germany,Frankfurt,2
 Germany,Hesse,1
 Germany,Munich,1
 Germany,Stuttgart,1
-India,Chennai,1
-India,Mumbai,1
-Japan,Tokyo,1
-Luxembourg,Luxembourg,2
-New Zealand,Auckland,1
+India,Mumbai,2
+India,Bengaluru,1
+Japan,Tokyo,2
+Luxembourg,Luxembourg,1
 SAR,Hong Kong,4
-Singapore,Singapore,8
+Singapore,Singapore,6
 South Korea,Seoul,1
-Spain,Madrid,1
 Sweden,Stockholm,2
-Switzerland,Geneva,1
+Switzerland,Basel,1
 Switzerland,Zurich,1
 UK,London,27
-UK,Cardiff,1
-UK,Isle of Man,1
-USA,New York,32
-USA,Los Angeles,4
-USA,Boston,3
-USA,Atlanta,1
-USA,Chicago,1
+USA,New York,40
+USA,Boston,5
+USA,Los Angeles,5
+USA,Chicago,2
+USA,Denver,1
 USA,Detroit,1
-USA,Hawaii,1
-USA,New Jersey,1
-USA,New Yotk,1
-USA,Ohio,1
+USA,Houston,1
+USA,Miami,1
+USA,Philadelphia,1
 USA,Raleigh,1
-USA,Salisbury,1
 USA,San Francisco,1
-USA,Stamford,1
-USA,Storrs Mansfield,1
 USA,Virginia Beach,1
-USA,Washington DC,1

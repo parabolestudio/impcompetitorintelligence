@@ -161,6 +161,10 @@
     }
   }
 
+  .country-shape [data-city-marker="true"][data-has-data-marker="false"] {
+    display: none;
+  }
+
   /*
     Tooltip for multiple visualizations
   */

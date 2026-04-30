@@ -128,10 +128,20 @@ export function Vis2() {
       const countriesWithCities = Object.entries(countryShapeMapping).filter(
         ([, cfg]) => cfg.showCities,
       );
+      const cityNamesByCountry = cityMovesDataRaw.reduce((acc, d) => {
+        if (!acc[d.country]) {
+          acc[d.country] = new Set();
+        }
+        acc[d.country].add(d.city);
+        return acc;
+      }, {});
       Promise.all(
         countriesWithCities.map(([countryName, cfg]) =>
-          fetch(`${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`)
-            // fetch(`./assets/countryShapes/${cfg.shapeFile}`)
+          fetch(
+            isLocal
+              ? `./assets/countryShapes/${cfg.shapeFile}`
+              : `${REPO_BASE_URL}/assets/countryShapes/${cfg.shapeFile}`,
+          )
             .then((res) => res.text())
             .then((svgText) => {
               const parser = new DOMParser();
@@ -180,6 +190,15 @@ export function Vis2() {
             viewBox: r.viewBox,
             cities: r.cities,
           };
+
+          const dataCities = Array.from(cityNamesByCountry[r.countryName] || []);
+          dataCities.forEach((cityName) => {
+            if (!r.cities[cityName]) {
+              console.log(
+                `[Vis2] City \"${cityName}\" exists in data for ${r.countryName} but has no marker in ${countryShapeMapping[r.countryName].shapeFile}`,
+              );
+            }
+          });
         });
         setSvgCityData(data);
       });
@@ -598,6 +617,18 @@ export function Vis2() {
     cssVar: `var(--color-vis-${colorKey})`,
   }));
 
+  const cityNamesByCountry = (cityMovesData || []).reduce((acc, cityMove) => {
+    if (!acc[cityMove.country]) {
+      acc[cityMove.country] = [];
+    }
+
+    if (!acc[cityMove.country].includes(cityMove.city)) {
+      acc[cityMove.country].push(cityMove.city);
+    }
+
+    return acc;
+  }, {});
+
   const hoverCountry = (event, d) => {
     const container = event.currentTarget.closest(".vis-content");
     const rect = container.getBoundingClientRect();
@@ -941,6 +972,7 @@ export function Vis2() {
                       color=${continentColor}
                       width=${shapePos.shapeW}
                       height=${shapePos.shapeH}
+                      visibleCities=${cityNamesByCountry[d.country] || []}
                     />
                   </g>`;
                 })

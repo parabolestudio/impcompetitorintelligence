@@ -109,7 +109,7 @@ export const countryShapeMapping = {
     showCities: true,
   },
   Germany: {
-    shapeFile: "germany.svg",
+    shapeFile: "Germany.svg",
     countryLabel: "Germany",
     aspectRatio: 60 / 81,
     showCities: false,

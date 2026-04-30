@@ -1,6 +1,15 @@
 import { scaleLinear } from "./lib.js";
 
-export const isLocal = false; // set to false to load from GitHub repo instead of local files
+let local = null;
+if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  local = true;
+} else {
+  local = false;
+}
+export const isLocal = local; // set to false to load from GitHub repo instead of local files
 
 export const REPO_BASE_URL =
   "https://raw.githubusercontent.com/parabolestudio/impcompetitorintelligence/refs/heads/main/";
@@ -64,6 +73,8 @@ export const logoMapping = {
   "DWS Group": "DWS_Group.png",
   EQT: "EQT.png",
   "EQT Group": "EQT.png",
+  "HarbourVest Partners": "HarbourVest_Partners.png",
+  ICG: "ICG.png",
   "IFM Investors": "IFM_Investors.png",
   KKR: "Kohlberg_Kravis_Roberts.png",
   "Oaktree Capital Management, L.P.": "Oaktree.png",
@@ -138,6 +149,54 @@ export const countryShapeMapping = {
     shapeFile: "luxembourgLow 1.svg",
     countryLabel: "Luxembourg",
     aspectRatio: 25 / 36,
+    showCities: false,
+  },
+  Brazil: {
+    shapeFile: "Brazil.svg",
+    countryLabel: "Brazil",
+    aspectRatio: 125 / 130,
+    showCities: false,
+  },
+  Spain: {
+    shapeFile: "Spain.svg",
+    countryLabel: "Spain",
+    aspectRatio: 130 / 97,
+    showCities: false,
+  },
+  Canada: {
+    shapeFile: "Canada.svg",
+    countryLabel: "Canada",
+    aspectRatio: 115 / 150,
+    showCities: false,
+  },
+  "South Korea": {
+    shapeFile: "South Korea.svg",
+    countryLabel: "South Korea",
+    aspectRatio: 85 / 136,
+    showCities: false,
+  },
+  "New Zealand": {
+    shapeFile: "New Zealand.svg",
+    countryLabel: "New Zealand",
+    aspectRatio: 95 / 128,
+    showCities: false,
+  },
+  Japan: {
+    shapeFile: "Japan.svg",
+    countryLabel: "Japan",
+    aspectRatio: 103 / 115,
+    showCities: false,
+  },
+  SAR: {
+    shapeFile: "SAR.svg",
+    countryLabel: "SAR (Hong Kong and Macau)",
+    aspectRatio: 126 / 63,
+    showCities: false,
+  },
+  France: {
+    shapeFile: "France.svg",
+    countryLabel: "France",
+    aspectRatio: 133 / 131,
     showCities: false,
   },
 };

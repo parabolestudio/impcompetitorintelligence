@@ -87,7 +87,9 @@ EQT Group,UK,London
 EQT Group,USA,New York
 EQT Group,USA,New York
 EQT Group,Singapore,Singapore
-EQT Group,"Luxembourg, Sweden, UK","Luxembourg, Stockholm, London"
+EQT Group,Luxembourg,Luxembourg
+EQT Group,Sweden,Stockholm
+EQT Group,UK,London
 Etablissement de Retraite Additionnelle de la Fonction Publique,France,Paris
 Farro Capital,Singapore,Singapore
 Fisher Funds,New Zealand,Auckland
@@ -98,7 +100,6 @@ HarbourVest Partners,UK,London
 HarbourVest Partners,USA,New York
 HarbourVest Partners,Singapore,Singapore
 HarbourVest Partners,USA,Boston
-Healthcare of Ontario Pension Plan,,
 Hodge Bank,UK,Cardiff
 "HPS Investment Partners, LLC",USA,New York
 ICG,UK,London
@@ -123,8 +124,6 @@ KKR,USA,Raleigh
 KKR,USA,Boston
 KKR,USA,New York
 L3Harris Technologies ,USA,"Melbourne, Florida"
-Legal and General Group,,
-Legal and General Group,,
 LGPS Central,UK,Merseyside
 London CIV,UK,London
 London Pensions Fund Authority,UK,London
@@ -151,12 +150,11 @@ PartnerRe,USA,Stamford
 Partners Group,Australia,Sydney
 Partners Group,Luxembourg,Luxembourg
 Peak Reinsurance,Singapore,Singapore
-Perella Weinberg Partners ,,
 Permira,UK,London
 PGIM,USA,Washington DC
-Power Corporation of Canada,Canda,Montreal
+Power Corporation of Canada,Canada,Montreal
 Prudential ,UK,London
-Public Sector Pension Investment Board,Canda,Quebec
+Public Sector Pension Investment Board,Canada,Quebec
 Rolls-Royce Pension Fund,UK,London
 Santander,Brazil,São Paulo
 Starwood Capital Group,USA,New York

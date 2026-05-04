@@ -1,5 +1,7 @@
 import { scaleLinear } from "./lib.js";
 
+export const latestDataFileDate = "2026_2";
+
 let local = null;
 if (
   window.location.hostname === "localhost" ||

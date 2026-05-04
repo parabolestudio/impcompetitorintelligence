@@ -9,6 +9,7 @@ import {
   isLocal,
   countryShapeMapping,
   getCountryShapeUrl,
+  latestDataFileDate,
 } from "./helpers.js";
 import Diamond from "./Diamond.js";
 import Country from "./Country.js";
@@ -18,7 +19,7 @@ const updateParam = new URLSearchParams(window.location.search).get(
 );
 const inputFileNamePart = updateParam
   ? `data_vis2_${updateParam}`
-  : "data_vis2_2026_2";
+  : `data_vis2_${latestDataFileDate}`;
 
 export function Vis2() {
   const [firmsData, setFirmsData] = useState(null);

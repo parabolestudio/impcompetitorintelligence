@@ -8,6 +8,7 @@ import {
   logoMapping,
   REPO_BASE_URL,
   isLocal,
+  latestDataFileDate,
 } from "./helpers.js";
 
 const updateParam = new URLSearchParams(window.location.search).get(
@@ -15,7 +16,7 @@ const updateParam = new URLSearchParams(window.location.search).get(
 );
 const inputFileName = updateParam
   ? `data_vis1_${updateParam}_transformed.csv`
-  : "data_vis1_2026_2_transformed.csv";
+  : `data_vis1_${latestDataFileDate}_transformed.csv`;
 
 export function Vis1() {
   const [movesData, setMovesData] = useState(null);
@@ -385,7 +386,10 @@ export function Vis1() {
                     tooltipContent: [
                       { label: "Former firm", value: d },
                       {
-                        label: "Connected new firms",
+                        label:
+                          connectedNewFirms.length > 1
+                            ? "New firms"
+                            : "New firm",
                         value: connectedNewFirms
                           .sort((a, b) => a.localeCompare(b))
                           .join(", "),
@@ -396,14 +400,14 @@ export function Vis1() {
                           .filter((move) => move.formerFirm === d)
                           .reduce((sum, move) => sum + move.numberMoves, 0),
                       },
-                      {
-                        label: "Positions after move",
-                        value: uniqueNewPositionTitles.join(", "),
-                      },
-                      {
-                        label: "Teams after move",
-                        value: uniqueNewTeams.join(", "),
-                      },
+                      // {
+                      //   label: "Positions after move",
+                      //   value: uniqueNewPositionTitles.join(", "),
+                      // },
+                      // {
+                      //   label: "Teams after move",
+                      //   value: uniqueNewTeams.join(", "),
+                      // },
                     ],
                   });
                 }}

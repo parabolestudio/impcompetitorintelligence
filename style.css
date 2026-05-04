@@ -147,6 +147,9 @@
 
   .vis-content {
     position: relative;
+    svg {
+      overflow: visible;
+    }
   }
 
   .country-name {

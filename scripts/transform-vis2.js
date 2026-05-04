@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataUpdate = "2026_4";
+const dataUpdate = "2026_5";
 const inputFileNameVis1 = `data_vis1_${dataUpdate}.csv`;
 const inputFileNameVis2 = `data_vis2_${dataUpdate}.csv`;
 

@@ -253,19 +253,3 @@
     letter-spacing: 0.25px;
   }
 }
-
-// set height of second Sankey via code overwrite
-body
-  > div.bubble-element.Page.main-page.bubble-r-container-wrapper
-  > div
-  > div.bubble-element.Group.bubble-r-container-wrapper
-  > div
-  > div
-  > div.bubble-element.Group.bubble-r-container.flex.column
-  > div.bubble-element.Group.bubble-r-container.flex.column
-  > div
-  > div.bubble-element.Group.bubble-r-container.flex.column
-  > div
-  > div[min-height="880px"] {
-  height: 985px;
-}

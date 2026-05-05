@@ -61,6 +61,7 @@ export function Vis1() {
           .split(";")
           .map((s) => s.trim());
         d["jobTitles"] = d["New job titles"].split(";").map((s) => s.trim());
+        d["names"] = d["Names"].split(";").map((s) => s.trim());
       });
 
       // sort by number of moves
@@ -232,6 +233,7 @@ export function Vis1() {
       newFirm: d.newFirm,
       numberMoves: d.numberMoves,
       jobTitles: d.jobTitles,
+      names: d.names,
       start: {
         x: formerFirmScaleX(d.formerFirm),
         y: height1 + 4,
@@ -468,8 +470,15 @@ export function Vis1() {
                         value: d.numberMoves,
                       },
                       {
-                        label: "New job title",
-                        value: d.jobTitles ? d.jobTitles.join(", ") : "N/A",
+                        label: `Person${d.names && d.names.length > 1 ? "s" : ""} hired`,
+                        value:
+                          d.names && d.names.length > 0
+                            ? d.names.join("; ")
+                            : "N/A",
+                      },
+                      {
+                        label: `New job title${d.jobTitles && d.jobTitles.length > 1 ? "s" : ""}`,
+                        value: d.jobTitles ? d.jobTitles.join("; ") : "N/A",
                       },
                     ],
                   });
@@ -525,12 +534,12 @@ export function Vis1() {
                     label: "Number of key executive moves*",
                     value: d.totalMoves,
                   },
-                  {
-                    label: "Positions offered",
-                    value: d.positionsWithSeniority
-                      .sort((a, b) => a.localeCompare(b))
-                      .join(", "),
-                  },
+                  // {
+                  //   label: "Positions offered",
+                  //   value: d.positionsWithSeniority
+                  //     .sort((a, b) => a.localeCompare(b))
+                  //     .join(", "),
+                  // },
                   {
                     label: "Teams involved",
                     value: d.teamsInvolved

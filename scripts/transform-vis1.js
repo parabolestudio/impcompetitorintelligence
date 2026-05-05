@@ -42,6 +42,7 @@ function parseCSVRow(row) {
 
 const formerIdx = header.indexOf("Former firm");
 const newIdx = header.indexOf("New firm");
+const nameIdx = header.indexOf("Name");
 const titleIdx = header.indexOf("New job title");
 const teamIdx = header.indexOf("Team (IMP defined)");
 const seniorityIdx = header.indexOf("Seniority (IMP defined)");
@@ -60,6 +61,7 @@ for (let i = 1; i < lines.length; i++) {
   const fields = parseCSVRow(lines[i]);
   const former = fields[formerIdx];
   const newFirm = fields[newIdx];
+  const name = nameIdx !== -1 ? fields[nameIdx] || "" : "";
   const title = fields[titleIdx] || "";
   const team = fields[teamIdx] || "";
   const seniority = fields[seniorityIdx] || "";
@@ -68,6 +70,7 @@ for (let i = 1; i < lines.length; i++) {
   if (!groups.has(key)) {
     groups.set(key, {
       count: 0,
+      names: new Set(),
       titles: new Set(),
       teams: new Set(),
       seniorities: new Set(),
@@ -75,6 +78,7 @@ for (let i = 1; i < lines.length; i++) {
   }
   const group = groups.get(key);
   group.count++;
+  if (name) group.names.add(name);
   if (title) group.titles.add(title);
   if (team) group.teams.add(team);
   if (seniority) group.seniorities.add(seniority);
@@ -99,7 +103,7 @@ function formatArray(set) {
 
 // Build output CSV — only include rows where the new firm has >= MIN_MOVES_PER_NEW_FIRM total moves
 const outputLines = [
-  "Former firm,New firm,Number of Moves,New job titles,Teams (IMP defined),Seniorities (IMP defined)",
+  "Former firm,New firm,Number of Moves,Names,New job titles,Teams (IMP defined),Seniorities (IMP defined)",
 ];
 
 let includedCount = 0;
@@ -111,11 +115,12 @@ for (const [key, group] of groups) {
   // Quote fields that contain commas
   const fmtFormer = former.includes(",") ? `"${former}"` : former;
   const fmtNew = newFirm.includes(",") ? `"${newFirm}"` : newFirm;
+  const fmtNames = formatArray(group.names);
   const fmtTitles = formatArray(group.titles);
   const fmtTeams = formatArray(group.teams);
   const fmtSeniorities = formatArray(group.seniorities);
   outputLines.push(
-    `${fmtFormer},${fmtNew},${group.count},${fmtTitles},${fmtTeams},${fmtSeniorities}`,
+    `${fmtFormer},${fmtNew},${group.count},${fmtNames},${fmtTitles},${fmtTeams},${fmtSeniorities}`,
   );
   includedCount++;
 }
